@@ -10,4 +10,14 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    server: {
+        proxy: {
+            // Proxy all these paths to Laravel backend
+            '^/(api|sanctum|login|register|logout)': {
+                target: 'http://localhost:8001',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
 });

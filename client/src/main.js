@@ -5,9 +5,10 @@ import './style.css'
 import router from './router/index.js'
 import axios from 'axios'
 
-
-axios.defaults.baseURL = 'http://localhost:8000/api';
+// Configure axios defaults
+axios.defaults.baseURL = 'http://localhost:8004';
 axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 const app = createApp(App);
 

@@ -6,13 +6,30 @@ export const useAuth = defineStore('auth', {
 
   actions: {
     async login(email, password) {
-      await axios.get('/sanctum/csrf-cookie')
-      const res = await axios.post('/login', { email, password })
-      this.user = res.data.user
+      try {
+        const res = await axios.post('/login', { email, password }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        this.user = res.data.user
+        return res.data
+      } catch (error) {
+        throw error
+      }
     },
     async logout() {
-      await axios.post('/logout')
-      this.user = null
+      try {
+        await axios.post('/logout', {}, {
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        this.user = null
+      } catch (error) {
+        throw error
+      }
     },
   }
 })
