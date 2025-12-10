@@ -14,101 +14,49 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label for="first-name" class="block text-sm font-medium text-gray-700">First name</label>
-                <Input
-                  id="first-name"
-                  v-model="form.firstName"
-                  type="text"
-                  required
-                  class="mt-1"
-                />
+                <Input id="first-name" v-model="form.firstName" type="text" required class="mt-1" />
               </div>
               
               <div>
                 <label for="last-name" class="block text-sm font-medium text-gray-700">Last name</label>
-                <Input
-                  id="last-name"
-                  v-model="form.lastName"
-                  type="text"
-                  required
-                  class="mt-1"
-                />
+                <Input id="last-name" v-model="form.lastName" type="text" required class="mt-1" />
               </div>
             </div>
             
             <div>
               <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-              <Input
-                id="address"
-                v-model="form.address"
-                type="text"
-                required
-                class="mt-1"
-              />
+              <Input id="address" v-model="form.address" type="text" required class="mt-1" />
             </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div>
                 <label for="city" class="block text-sm font-medium text-gray-700">City</label>
-                <Input
-                  id="city"
-                  v-model="form.city"
-                  type="text"
-                  required
-                  class="mt-1"
-                />
+                <Input id="city" v-model="form.city" type="text" required class="mt-1" />
               </div>
               
               <div>
                 <label for="state" class="block text-sm font-medium text-gray-700">State</label>
-                <Input
-                  id="state"
-                  v-model="form.state"
-                  type="text"
-                  required
-                  class="mt-1"
-                />
+                <Input id="state" v-model="form.state" type="text" required class="mt-1" />
               </div>
               
               <div>
                 <label for="zip" class="block text-sm font-medium text-gray-700">ZIP / Postal code</label>
-                <Input
-                  id="zip"
-                  v-model="form.zip"
-                  type="text"
-                  required
-                  class="mt-1"
-                />
+                <Input id="zip" v-model="form.zip" type="text" required class="mt-1" />
               </div>
             </div>
             
             <div>
               <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-              <Input
-                id="phone"
-                v-model="form.phone"
-                type="tel"
-                required
-                class="mt-1"
-              />
+              <Input id="phone" v-model="form.phone" type="tel" required class="mt-1" />
             </div>
             
             <div>
               <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-              <Input
-                id="email"
-                v-model="form.email"
-                type="email"
-                required
-                class="mt-1"
-              />
+              <Input id="email" v-model="form.email" type="email" required class="mt-1" />
             </div>
             
             <div class="pt-4">
-              <Button
-                type="submit"
-                :disabled="loading"
-                class="w-full"
-              >
+              <Button type="submit" :disabled="loading" class="w-full">
                 {{ loading ? 'Processing...' : 'Place Order' }}
               </Button>
             </div>
@@ -156,15 +104,15 @@
       </div>
     </div>
     
-    <div v-if="error" class="mt-6 bg-red-50 border border-red-200 rounded-md p-4">
+    <div v-if="error" class="mt-6 bg-red-50 border red-200 rounded-md p-4">
       <p class="text-red-700">{{ error }}</p>
     </div>
     
-    <div v-if="success && !orderCreated" class="mt-6 bg-green-50 border border-green-200 rounded-md p-4">
+    <div v-if="success && !orderCreated" class="mt-6 bg-green-50 border green-200 rounded-md p-4">
       <p class="text-green-700">Order placed successfully! Your order ID is {{ orderId }}</p>
     </div>
     
-    <div v-if="paymentSuccess" class="mt-6 bg-green-50 border border-green-200 rounded-md p-4">
+    <div v-if="paymentSuccess" class="mt-6 bg-green-50 border green-200 rounded-md p-4">
       <p class="text-green-700">Payment successful! Your order is now being processed.</p>
     </div>
   </div>
@@ -209,9 +157,7 @@ const subtotal = computed(() => {
   return cartStore.items.reduce((sum, item) => sum + (item.price * item.qty), 0)
 })
 
-const total = computed(() => {
-  return subtotal.value + deliveryFee
-})
+const total = computed(() => subtotal.value + deliveryFee)
 
 const handleSubmit = async () => {
   loading.value = true
@@ -240,8 +186,19 @@ const handleSubmit = async () => {
     orderId.value = response.data.order.id
     success.value = true
     orderCreated.value = true
-    
-    // Don't clear cart yet, wait for payment
+
+    // 🔥 Reset form after successful order
+    form.value = {
+      firstName: '',
+      lastName: '',
+      address: '',
+      city: '',
+      state: '',
+      zip: '',
+      phone: '',
+      email: ''
+    }
+
   } catch (err) {
     error.value = err.response?.data?.message || 'Failed to place order'
   } finally {
@@ -249,11 +206,10 @@ const handleSubmit = async () => {
   }
 }
 
-const handlePaymentSuccess = (data) => {
+const handlePaymentSuccess = () => {
   paymentSuccess.value = true
   cartStore.items = []
   
-  // Redirect to orders page after a delay
   setTimeout(() => {
     router.push('/orders')
   }, 2000)
