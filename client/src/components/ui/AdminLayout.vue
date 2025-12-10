@@ -38,6 +38,14 @@
         <div class="flex justify-between items-center p-4">
           <h2 class="text-xl font-semibold text-gray-800">{{ props.title }}</h2>
           <div class="flex items-center space-x-4">
+            <!-- Customer site link -->
+            <router-link 
+              to="/products" 
+              class="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Customer Site
+            </router-link>
+            
             <button 
               @click="logout"
               class="text-sm text-gray-600 hover:text-gray-900"
@@ -63,7 +71,6 @@ import { useAuth } from '../../Stores/auth'
 const props = defineProps({
   title: [String]
 })
-
 
 const router = useRouter()
 const authStore = useAuth()
