@@ -174,15 +174,16 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCart } from '../Stores/cart'
+import { useAuth } from '../Stores/auth'
 import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
 import Input from '../components/ui/Input.vue'
 import PaystackButton from '../components/PaystackButton.vue'
-// import axios from 'axios'
 import api from '../services/api'
 
 const router = useRouter()
 const cartStore = useCart()
+const authStore = useAuth()
 
 const deliveryFee = 1000
 
@@ -218,8 +219,6 @@ const handleSubmit = async () => {
   success.value = false
   
   try {
-    await axios.get('/sanctum/csrf-cookie')
-
     const response = await api.post('/orders', {
       items: cartStore.items.map(item => ({
         product_id: item.id,

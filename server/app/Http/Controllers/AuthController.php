@@ -23,9 +23,10 @@ class AuthController extends Controller
         'password' => Hash::make($data['password'])
     ]);
 
-    Auth::login($user);
+    // Create a Sanctum token for the user
+    $token = $user->createToken('auth-token')->plainTextToken;
 
-    return response()->json(['user' => $user]);
+    return response()->json(['user' => $user, 'token' => $token]);
 }
 
     public function login(Request $req)
@@ -39,14 +40,21 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 422);
         }
 
+        // Create a Sanctum token for the user
+        $user = Auth::user();
+        $token = $user->createToken('auth-token')->plainTextToken;
+
         if ($req->hasSession()) {
             $req->session()->regenerate();
         }
-        return response()->json(['user' => Auth::user()]);
+        return response()->json(['user' => $user, 'token' => $token]);
     }
 
     public function logout(Request $req)
     {
+        // Revoke all tokens for the user
+        Auth::user()->tokens()->delete();
+        
         Auth::logout();
         
         if ($req->hasSession()) {
