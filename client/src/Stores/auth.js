@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import api from '../services/api'
 
 export const useAuth = defineStore('auth', {
   state: () => ({ user: null }),
@@ -7,12 +7,7 @@ export const useAuth = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        const res = await axios.post('/login', { email, password }, {
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
+        const res = await api.post('/login', { email, password })
         this.user = res.data.user
         return res.data
       } catch (error) {
@@ -21,11 +16,7 @@ export const useAuth = defineStore('auth', {
     },
     async logout() {
       try {
-        await axios.post('/logout', {}, {
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
+        await api.post('/logout')
         this.user = null
       } catch (error) {
         throw error
