@@ -1,46 +1,200 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <router-link to="/help" class="text-indigo-600 hover:text-indigo-800 flex items-center mb-6">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
-      </svg>
-      Back to Help Center
-    </router-link>
+    <!-- Breadcrumb -->
+    <nav class="flex mb-6" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <router-link to="/" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-indigo-600">
+            Home
+          </router-link>
+        </li>
+        <li class="inline-flex items-center">
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <router-link to="/help" class="ml-1 text-sm font-medium text-gray-700 hover:text-indigo-600 md:ml-2">
+              Help Center
+            </router-link>
+          </div>
+        </li>
+        <li aria-current="page">
+          <div class="flex items-center">
+            <svg class="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+            </svg>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Place an Order</span>
+          </div>
+        </li>
+      </ol>
+    </nav>
     
     <div v-if="loading" class="flex justify-center items-center h-64">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
     </div>
     
-    <div v-else>
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ topicData.title }}</h1>
-      
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <p class="text-gray-600 mb-6">{{ topicData.description }}</p>
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+    
+    <div v-else-if="topicData" class="flex flex-col lg:flex-row gap-8">
+      <!-- Sidebar Navigation -->
+      <div class="lg:w-1/4">
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Ordering & Purchasing</h2>
+          <ul class="space-y-2">
+            <li>
+              <router-link 
+                to="/help/place-order" 
+                class="w-full text-left px-4 py-2 rounded-md text-sm font-medium bg-indigo-50 text-indigo-700 block"
+              >
+                Place an Order
+              </router-link>
+            </li>
+            <li>
+              <router-link 
+                to="/help/payment-options" 
+                class="w-full text-left px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 block"
+              >
+                Payment Options
+              </router-link>
+            </li>
+            <li>
+              <router-link 
+                to="/help/track-order" 
+                class="w-full text-left px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 block"
+              >
+                Track an Order
+              </router-link>
+            </li>
+            <li>
+              <router-link 
+                to="/help/cancel-order" 
+                class="w-full text-left px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 block"
+              >
+                Cancel an Order
+              </router-link>
+            </li>
+          </ul>
+        </div>
         
-        <ol class="space-y-6">
-          <li 
-            v-for="step in topicData.steps" 
-            :key="step.number" 
-            class="flex"
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Need More Help?</h3>
+          <p class="text-gray-600 text-sm mb-4">Can't find the answer you're looking for?</p>
+          <router-link 
+            to="/live-chat" 
+            class="inline-flex items-center justify-center w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
           >
-            <div class="flex-shrink-0 h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-              <span class="text-indigo-800 font-bold">{{ step.number }}</span>
-            </div>
-            <div>
-              <h3 class="text-lg font-medium text-gray-900 mb-2">{{ step.title }}</h3>
-              <p class="text-gray-600">{{ step.content }}</p>
-            </div>
-          </li>
-        </ol>
+            Chat with Support
+          </router-link>
+        </div>
       </div>
       
-      <div class="bg-blue-50 rounded-lg p-6">
-        <h3 class="text-lg font-medium text-gray-900 mb-3">Need More Help?</h3>
-        <p class="text-gray-600 mb-4">If you're having trouble placing an order, our customer support team is ready to assist you.</p>
-        <router-link to="/live-chat" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Chat with Support
-        </router-link>
+      <!-- Main Content -->
+      <div class="lg:w-3/4">
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ topicData.title }}</h1>
+          
+          <div class="prose max-w-none">
+            <p class="text-gray-600 mb-8">{{ topicData.description }}</p>
+            
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-blue-700">
+                    <strong>Tip:</strong> Make sure to verify your shipping address before placing an order to ensure timely delivery.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <ol class="space-y-8">
+              <li 
+                v-for="step in topicData.steps" 
+                :key="step.number" 
+                class="flex"
+              >
+                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                  <span class="text-indigo-800 font-bold">{{ step.number }}</span>
+                </div>
+                <div>
+                  <h3 class="text-lg font-medium text-gray-900 mb-2">{{ step.title }}</h3>
+                  <p class="text-gray-600 mb-4">{{ step.content }}</p>
+                  
+                  <!-- Step illustration (placeholder) -->
+                  <div v-if="step.number === 1" class="bg-gray-100 border-2 border-dashed rounded-xl w-full h-48 mb-4 flex items-center justify-center">
+                    <span class="text-gray-500">Product browsing illustration</span>
+                  </div>
+                  
+                  <div v-else-if="step.number === 3" class="bg-gray-100 border-2 border-dashed rounded-xl w-full h-48 mb-4 flex items-center justify-center">
+                    <span class="text-gray-500">Checkout process illustration</span>
+                  </div>
+                </div>
+              </li>
+            </ol>
+          </div>
+          
+          <!-- Feedback section -->
+          <div class="mt-12 pt-8 border-t border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Was this helpful?</h3>
+            <div class="flex items-center space-x-4">
+              <button 
+                @click="rateHelpful(true)"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <svg class="h-5 w-5 text-green-500 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+                Yes
+              </button>
+              <button 
+                @click="rateHelpful(false)"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                <svg class="h-5 w-5 text-red-500 mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                </svg>
+                No
+              </button>
+            </div>
+          </div>
+          
+          <!-- Related articles -->
+          <div class="mt-12">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Related Articles</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <router-link 
+                to="/help/payment-options" 
+                class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+              >
+                <svg class="h-5 w-5 text-gray-400 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                  <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-gray-700">Payment Options</span>
+              </router-link>
+              <router-link 
+                to="/help/track-order" 
+                class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+              >
+                <svg class="h-5 w-5 text-gray-400 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                </svg>
+                <span class="text-gray-700">Track an Order</span>
+              </router-link>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+    
+    <div v-else class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+      <p class="text-yellow-700">Help content not available.</p>
     </div>
   </div>
 </template>
@@ -49,82 +203,32 @@
 import { ref, onMounted } from 'vue'
 import { getHelpTopic } from '../../services/helpService'
 
-const topicData = ref({})
+const topicData = ref(null)
 const loading = ref(true)
+const error = ref(null)
+
+const rateHelpful = (isHelpful) => {
+  // In a real application, this would send feedback to the backend
+  console.log('User rated article as helpful:', isHelpful)
+  
+  // Show confirmation
+  alert(isHelpful 
+    ? 'Thank you for your feedback!' 
+    : 'Thank you for your feedback! We\'ll work to improve this article.')
+}
 
 onMounted(async () => {
   try {
-    // In a real application, we would fetch from the service
-    // const data = await getHelpTopic('place-order')
-    // topicData.value = data
-    
-    // For now, use static data
-    topicData.value = {
-      title: 'How to Place an Order',
-      description: 'Learn how to browse products and place your first order.',
-      steps: [
-        {
-          number: 1,
-          title: 'Browse Products',
-          content: 'Visit our products page to browse through our wide selection of food items. You can use the search bar or filter by category to find what you\'re looking for.'
-        },
-        {
-          number: 2,
-          title: 'Add to Cart',
-          content: 'Click the "Add to Cart" button on any product you wish to purchase. You can adjust quantities in your cart before checkout.'
-        },
-        {
-          number: 3,
-          title: 'Proceed to Checkout',
-          content: 'Click the cart icon in the top right corner and select "Checkout" to proceed with your order.'
-        },
-        {
-          number: 4,
-          title: 'Enter Shipping Information',
-          content: 'Fill in your shipping address and contact details. Make sure all information is accurate to ensure timely delivery.'
-        },
-        {
-          number: 5,
-          title: 'Complete Payment',
-          content: 'Review your order summary and select your preferred payment method to complete the purchase.'
-        }
-      ]
+    const data = await getHelpTopic('place-order')
+    if (data) {
+      topicData.value = data
+    } else {
+      error.value = 'Help content not found.'
     }
     loading.value = false
-  } catch (error) {
-    console.error('Failed to load help topic:', error)
-    // Fallback to static data
-    topicData.value = {
-      title: 'How to Place an Order',
-      description: 'Learn how to browse products and place your first order.',
-      steps: [
-        {
-          number: 1,
-          title: 'Browse Products',
-          content: 'Visit our products page to browse through our wide selection of food items. You can use the search bar or filter by category to find what you\'re looking for.'
-        },
-        {
-          number: 2,
-          title: 'Add to Cart',
-          content: 'Click the "Add to Cart" button on any product you wish to purchase. You can adjust quantities in your cart before checkout.'
-        },
-        {
-          number: 3,
-          title: 'Proceed to Checkout',
-          content: 'Click the cart icon in the top right corner and select "Checkout" to proceed with your order.'
-        },
-        {
-          number: 4,
-          title: 'Enter Shipping Information',
-          content: 'Fill in your shipping address and contact details. Make sure all information is accurate to ensure timely delivery.'
-        },
-        {
-          number: 5,
-          title: 'Complete Payment',
-          content: 'Review your order summary and select your preferred payment method to complete the purchase.'
-        }
-      ]
-    }
+  } catch (err) {
+    console.error('Failed to load help topic:', err)
+    error.value = 'Failed to load help content. Please try again later.'
     loading.value = false
   }
 })

@@ -1,99 +1,68 @@
-import { createRouter, createWebHistory } from "vue-router";
-import { useAuth } from "@/Stores/auth";
-
-// Import pages
-import Login from "../pages/Login.vue";
-import Register from "../pages/Register.vue";
-import Products from "../pages/Products.vue";
+import { createRouter, createWebHistory } from 'vue-router'
+import MainLayout from '../components/ui/MainLayout.vue'
+import Home from '../pages/Home.vue'
+import Products from '../pages/Products.vue'
 import ProductDetails from '../pages/ProductDetails.vue'
-import Cart from "../pages/Cart.vue";
-import Checkout from "../pages/Checkout.vue";
-import Orders from "../pages/Orders.vue";
-import AdminDashboard from "../pages/admin/Dashboard.vue";
-import AdminProducts from "../pages/admin/Products.vue";
-import AdminOrders from "../pages/admin/Orders.vue";
-import ForbiddenPage from "../components/Forbidden/ForbiddenPage.vue";
-
-// Import help pages
-import Help from "../pages/Help.vue";
-import PlaceOrder from "../pages/help/PlaceOrder.vue";
-import PaymentOptions from "../pages/help/PaymentOptions.vue";
-import TrackOrder from "../pages/help/TrackOrder.vue";
-import CancelOrder from "../pages/help/CancelOrder.vue";
-import ReturnsRefunds from "../pages/help/ReturnsRefunds.vue";
-import LiveChat from "../pages/LiveChat.vue";
-
-// Import layouts
-import MainLayout from "../components/ui/MainLayout.vue";
-import AdminLayout from "../components/ui/AdminLayout.vue";
+import Cart from '../pages/Cart.vue'
+import Checkout from '../pages/Checkout.vue'
+import Orders from '../pages/Orders.vue'
+import Help from '../pages/Help.vue'
+import PlaceOrder from '../pages/help/PlaceOrder.vue'
+import PaymentOptions from '../pages/help/PaymentOptions.vue'
+import TrackOrder from '../pages/help/TrackOrder.vue'
+import CancelOrder from '../pages/help/CancelOrder.vue'
+import ReturnsRefunds from '../pages/help/ReturnsRefunds.vue'
+import LiveChat from '../pages/LiveChat.vue'
+import Login from '../pages/Login.vue'
+import Register from '../pages/Register.vue'
+import AdminLogin from '../pages/admin/AdminLogin.vue'
+import AdminDashboard from '../pages/admin/AdminDashboard.vue'
+import AdminProducts from '../pages/admin/AdminProducts.vue'
+import AdminOrders from '../pages/admin/AdminOrders.vue'
 
 const routes = [
   {
-    path: "/",
+    path: '/',
     component: MainLayout,
     children: [
-      { path: "", redirect: "/products" },
-      { path: "products", component: Products },
-      { path: 'products/:id', component: ProductDetails },
-      { path: "cart", component: Cart },
-      { path: "checkout", component: Checkout, meta: { requiresAuth: true } },
-      { path: "orders", component: Orders, meta: { requiresAuth: true } },
-      { path: "login", component: Login },
-      { path: "register", component: Register },
-      { path: "help", component: Help },
-      { path: "help/place-order", component: PlaceOrder },
-      { path: "help/payment-options", component: PaymentOptions },
-      { path: "help/track-order", component: TrackOrder },
-      { path: "help/cancel-order", component: CancelOrder },
-      { path: "help/returns-refunds", component: ReturnsRefunds },
-      { path: "live-chat", component: LiveChat },
+      { path: '', component: Home },
+      { path: 'products', component: Products },
+      { path: 'products/:id', component: ProductDetails, props: true },
+      { path: 'cart', component: Cart },
+      { path: 'checkout', component: Checkout },
+      { path: 'orders', component: Orders },
+      { path: 'help', component: Help },
+      { path: 'help/place-order', component: PlaceOrder },
+      { path: 'help/payment-options', component: PaymentOptions },
+      { path: 'help/track-order', component: TrackOrder },
+      { path: 'help/cancel-order', component: CancelOrder },
+      { path: 'help/returns-refunds', component: ReturnsRefunds },
+      { path: 'live-chat', component: LiveChat },
+      { path: 'login', component: Login },
+      { path: 'register', component: Register }
     ]
   },
-  
-  // Admin routes (protected)
   {
-    path: "/admin",
-    component: AdminLayout,
-    meta: { requiresAuth: true, requiresAdmin: true },
-    children: [
-      { path: "", component: AdminDashboard },
-      { path: "products", component: AdminProducts },
-      { path: "orders", component: AdminOrders },
-    ]
+    path: '/admin',
+    component: AdminLogin
   },
-  
   {
-    path: "/403",
-    name: "forbidden",
-    component: ForbiddenPage,
+    path: '/admin/dashboard',
+    component: AdminDashboard
   },
-  
-  // Catch-all route
-  { 
-    path: '/:pathMatch(.*)*', 
-    redirect: '/products' 
+  {
+    path: '/admin/products',
+    component: AdminProducts
+  },
+  {
+    path: '/admin/orders',
+    component: AdminOrders
   }
-];
+]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
-});
+  routes
+})
 
-router.beforeEach((to, from, next) => {
-  const authStore = useAuth();
-  const isAuthenticated = !!authStore.user;
-  const isAdmin = isAuthenticated && authStore.user?.is_admin;
-  
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    if (to.path !== "/login") return next("/login");
-  }
-  
-  if (to.meta.requiresAdmin && !isAdmin) {
-    if (to.path !== "/403") return next("/403");
-  }
-  
-  next();
-});
-
-export default router;
+export default router

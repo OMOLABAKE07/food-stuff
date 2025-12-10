@@ -25,5 +25,10 @@ class DatabaseSeeder extends Seeder
         
         // Seed products and categories
         $this->call(ProductSeeder::class);
+        
+        // Seed help system
+        $this->call(HelpCategoriesTableSeeder::class);
+        $this->call(HelpTopicsTableSeeder::class);
+        $this->call(HelpArticlesTableSeeder::class);
     }
 }
