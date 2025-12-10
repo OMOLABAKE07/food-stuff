@@ -14,6 +14,15 @@ import AdminProducts from "../pages/admin/Products.vue";
 import AdminOrders from "../pages/admin/Orders.vue";
 import ForbiddenPage from "../components/Forbidden/ForbiddenPage.vue";
 
+// Import help pages
+import Help from "../pages/Help.vue";
+import PlaceOrder from "../pages/help/PlaceOrder.vue";
+import PaymentOptions from "../pages/help/PaymentOptions.vue";
+import TrackOrder from "../pages/help/TrackOrder.vue";
+import CancelOrder from "../pages/help/CancelOrder.vue";
+import ReturnsRefunds from "../pages/help/ReturnsRefunds.vue";
+import LiveChat from "../pages/LiveChat.vue";
+
 // Import layouts
 import MainLayout from "../components/ui/MainLayout.vue";
 import AdminLayout from "../components/ui/AdminLayout.vue";
@@ -31,6 +40,13 @@ const routes = [
       { path: "orders", component: Orders, meta: { requiresAuth: true } },
       { path: "login", component: Login },
       { path: "register", component: Register },
+      { path: "help", component: Help },
+      { path: "help/place-order", component: PlaceOrder },
+      { path: "help/payment-options", component: PaymentOptions },
+      { path: "help/track-order", component: TrackOrder },
+      { path: "help/cancel-order", component: CancelOrder },
+      { path: "help/returns-refunds", component: ReturnsRefunds },
+      { path: "live-chat", component: LiveChat },
     ]
   },
   
