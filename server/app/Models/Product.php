@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasFactory;
+    
     protected $fillable = ['name','slug','description','price','stock','images','category_id','is_active'];
 
     protected $casts = [
@@ -24,5 +27,11 @@ class Product extends Model
     {
         $this->attributes['name'] = $value;
         $this->attributes['slug'] = \Illuminate\Support\Str::slug($value);
+    }
+    
+    // Relationship with Category
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
     }
 }

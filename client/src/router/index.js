@@ -5,7 +5,7 @@ import { useAuth } from "../Stores/auth";
 import Login from "../pages/Login.vue";
 import Register from "../pages/Register.vue";
 import Products from "../pages/Products.vue";
-// import ProductDetails from '../pages/ProductDetails.vue'
+import ProductDetails from '../pages/ProductDetails.vue'
 import Cart from "../pages/Cart.vue";
 import Checkout from "../pages/Checkout.vue";
 import Orders from "../pages/Orders.vue";
@@ -18,13 +18,13 @@ const routes = [
   { path: "/login", component: Login },
   { path: "/register", component: Register },
   { path: "/products", component: Products },
-  // { path: '/products/:id', component: ProductDetails },
-
+  { path: '/products/:id', component: ProductDetails },
+  
   // Customer routes (protected)
   { path: "/cart", component: Cart, meta: { requiresAuth: true } },
   { path: "/checkout", component: Checkout, meta: { requiresAuth: true } },
   { path: "/orders", component: Orders, meta: { requiresAuth: true } },
-
+  
   // Admin routes (protected)
   {
     path: "/",
@@ -57,15 +57,15 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuth();
   const isAuthenticated = !!authStore.user;
   const isAdmin = isAuthenticated && authStore.user?.is_admin;
-
+  
   if (to.meta.requiresAuth && !isAuthenticated) {
     if (to.path !== "/login") return next("/login");
   }
-
+  
   if (to.meta.requiresAdmin && !isAdmin) {
     if (to.path !== "/403") return next("/403");
   }
-
+  
   next();
 });
 
