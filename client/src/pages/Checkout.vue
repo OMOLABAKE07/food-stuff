@@ -178,7 +178,8 @@ import Card from '../components/ui/Card.vue'
 import Button from '../components/ui/Button.vue'
 import Input from '../components/ui/Input.vue'
 import PaystackButton from '../components/PaystackButton.vue'
-import axios from 'axios'
+// import axios from 'axios'
+import api from '../services/api'
 
 const router = useRouter()
 const cartStore = useCart()
@@ -218,7 +219,8 @@ const handleSubmit = async () => {
   
   try {
     await axios.get('/sanctum/csrf-cookie')
-    const response = await axios.post('/orders', {
+
+    const response = await api.post('/orders', {
       items: cartStore.items.map(item => ({
         product_id: item.id,
         quantity: item.qty

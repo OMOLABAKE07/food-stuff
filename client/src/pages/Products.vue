@@ -39,7 +39,7 @@ import { ref, onMounted } from 'vue'
 import { useAuth } from '../Stores/auth'
 import { useCart } from '../Stores/cart'
 import ProductCard from '../components/ProductCard.vue'
-import axios from 'axios'
+import api from '../services/api'
 
 const authStore = useAuth()
 const cartStore = useCart()
@@ -53,7 +53,7 @@ const fetchProducts = async () => {
   error.value = ''
   
   try {
-    const response = await axios.get('/products')
+    const response = await api.get('/products')
     products.value = response.data
   } catch (err) {
     error.value = 'Failed to load products'

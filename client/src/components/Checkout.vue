@@ -1,11 +1,11 @@
 <script setup>
-import axios from 'axios'
 import { useCart } from '../store/cart'
+import api from '../services/api'
 
 const cart = useCart()
 
 async function placeOrder(){
-const res = await axios.post('/orders', {
+const res = await api.post('/orders', {
 items: cart.items,
 delivery_address: { address: 'Sample Street', city: 'Lagos' }
 })

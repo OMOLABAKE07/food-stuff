@@ -53,7 +53,7 @@ import { ref, onMounted } from 'vue'
 import AdminLayout from '../../components/ui/AdminLayout.vue'
 import Card from '../../components/ui/Card.vue'
 import AdminTable from '../../components/ui/AdminTable.vue'
-import axios from 'axios'
+import api from '../../services/api'
 
 const orders = ref([])
 const loading = ref(false)
@@ -68,7 +68,7 @@ const columns = [
 const fetchOrders = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/admin/orders')
+    const response = await api.get('/admin/orders')
     orders.value = response.data
   } catch (error) {
     console.error('Failed to fetch orders:', error)
@@ -79,7 +79,7 @@ const fetchOrders = async () => {
 
 const updateOrderStatus = async (orderId, status) => {
   try {
-    await axios.put(`/admin/orders/${orderId}/status`, { status })
+    await api.put(`/admin/orders/${orderId}/status`, { status })
     fetchOrders()
   } catch (error) {
     console.error('Failed to update order status:', error)

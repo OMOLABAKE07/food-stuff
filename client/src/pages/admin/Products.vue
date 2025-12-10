@@ -112,7 +112,7 @@ import Modal from '../../components/ui/Modal.vue'
 import Input from '../../components/ui/Input.vue'
 import AdminTable from '../../components/ui/AdminTable.vue'
 import ImageUploader from '../../components/ImageUploader.vue'
-import axios from 'axios'
+import api from '../../services/api'
 
 const products = ref([])
 const loading = ref(false)
@@ -141,7 +141,7 @@ const columns = [
 const fetchProducts = async () => {
   loading.value = true
   try {
-    const response = await axios.get('/admin/products')
+    const response = await api.get('/admin/products')
     products.value = response.data
   } catch (error) {
     console.error('Failed to fetch products:', error)
@@ -187,14 +187,14 @@ const saveProduct = async () => {
 
     if (editingProduct.value) {
       // Update existing product
-      await axios.post(`/admin/products/${editingProduct.value.id}`, formData, {
+      await api.post(`/admin/products/${editingProduct.value.id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
     } else {
       // Create new product
-      await axios.post('/admin/products', formData, {
+      await api.post('/admin/products', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -213,7 +213,7 @@ const saveProduct = async () => {
 const deleteProduct = async (id) => {
   if (confirm('Are you sure you want to delete this product?')) {
     try {
-      await axios.delete(`/admin/products/${id}`)
+      await api.delete(`/admin/products/${id}`)
       fetchProducts()
     } catch (error) {
       console.error('Failed to delete product:', error)

@@ -14,7 +14,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../services/api'
 
 const props = defineProps({
   orderId: {
@@ -39,8 +39,8 @@ const initializePayment = async () => {
   loading.value = true
   
   try {
-    await axios.get('/sanctum/csrf-cookie')
-    const response = await axios.post('/payment/initialize', {
+    await api.get('/sanctum/csrf-cookie')
+    const response = await api.post('/payment/initialize', {
       order_id: props.orderId
     })
     
@@ -76,7 +76,7 @@ const initializePayment = async () => {
 
 const verifyPayment = async (reference) => {
   try {
-    const response = await axios.get(`/payment/verify/${reference}`)
+    const response = await api.get(`/payment/verify/${reference}`)
     emit('payment-success', response.data)
     loading.value = false
   } catch (error) {

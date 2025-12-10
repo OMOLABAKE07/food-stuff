@@ -56,7 +56,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import api from '../services/api'
 
 const orders = ref([])
 const loading = ref(false)
@@ -67,7 +67,7 @@ const fetchOrders = async () => {
   error.value = ''
   
   try {
-    const response = await axios.get('/orders')
+    const response = await api.get('/orders')
     orders.value = response.data
   } catch (err) {
     error.value = 'Failed to load orders'
