@@ -16,6 +16,7 @@ import CancelOrder from '../pages/help/CancelOrder.vue'
 import ReturnsRefunds from '../pages/help/ReturnsRefunds.vue'
 import LiveChat from '../pages/LiveChat.vue'
 import MainLayout from '../components/ui/MainLayout.vue'
+import { useAuth } from '../Stores/auth'
 
 const routes = [
   {
@@ -45,6 +46,30 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// Navigation guard for protected routes
+router.beforeEach((to, from, next) => {
+  // Define routes that require authentication
+  const protectedRoutes = ['/checkout', '/orders']
+  
+  // Check if the route requires authentication
+  if (protectedRoutes.includes(to.path)) {
+    const authStore = useAuth()
+    
+    // Check if user is authenticated
+    if (!authStore.isAuthenticated) {
+      // Redirect to login page with return url
+      next({ 
+        path: '/login', 
+        query: { redirect: to.fullPath } 
+      })
+      return
+    }
+  }
+  
+  // Allow navigation to proceed
+  next()
 })
 
 export default router

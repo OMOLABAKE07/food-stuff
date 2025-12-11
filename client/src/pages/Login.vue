@@ -70,12 +70,13 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../Stores/auth'
 import Button from '../components/ui/Button.vue'
 import Input from '../components/ui/Input.vue'
 
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuth()
 
 const form = ref({
@@ -92,7 +93,9 @@ const handleLogin = async () => {
   
   try {
     await authStore.login(form.value.email, form.value.password)
-    router.push('/products')
+    // Redirect to intended destination or fallback to products
+    const redirectPath = route.query.redirect || '/products'
+    router.push(redirectPath)
   } catch (err) {
     error.value = err.response?.data?.message || 'Login failed'
   } finally {

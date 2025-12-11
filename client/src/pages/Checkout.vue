@@ -13,14 +13,14 @@
           <form @submit.prevent="handleSubmit" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label for="first-name" class="block text-sm font-medium text-gray-700">First name</label>
-                <Input id="first-name" v-model="form.firstName" type="text" required class="mt-1" />
+                <label for="first-name" class="block text-sm font-medium text-gray-700">Full name</label>
+                <Input id="first-name" v-model="form.name" type="text" required class="mt-1" />
               </div>
               
-              <div>
-                <label for="last-name" class="block text-sm font-medium text-gray-700">Last name</label>
-                <Input id="last-name" v-model="form.lastName" type="text" required class="mt-1" />
-              </div>
+               <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+              <Input id="phone" v-model="form.phone" type="tel" required class="mt-1" />
+            </div>
             </div>
             
             <div>
@@ -44,11 +44,7 @@
                 <Input id="zip" v-model="form.zip" type="text" required class="mt-1" />
               </div>
             </div>
-            
-            <div>
-              <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
-              <Input id="phone" v-model="form.phone" type="tel" required class="mt-1" />
-            </div>
+         
             
             <div>
               <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -119,8 +115,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useCart } from '../Stores/cart'
 import { useAuth } from '../Stores/auth'
 import Card from '../components/ui/Card.vue'
@@ -130,14 +126,28 @@ import PaystackButton from '../components/PaystackButton.vue'
 import api from '../services/api'
 
 const router = useRouter()
+const route = useRoute()
 const cartStore = useCart()
 const authStore = useAuth()
+
+// Initialize form with user data if available
+onMounted(() => {
+  if (authStore.user) {
+    form.value.name = authStore.user.name.split(' ')[0] || ''
+    form.value.email = authStore.user.email || ''
+  }
+  
+  // Check if we were redirected from login
+  if (route.query.redirect) {
+    // Could show a message to the user that they've been redirected
+    console.log('Redirected from login')
+  }
+})
 
 const deliveryFee = 1000
 
 const form = ref({
-  firstName: '',
-  lastName: '',
+   name: '',
   address: '',
   city: '',
   state: '',
