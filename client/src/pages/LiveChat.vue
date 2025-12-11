@@ -165,56 +165,66 @@
             <!-- Chat Messages -->
             <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 bg-gray-50">
               <div class="space-y-4">
-                <!-- System Message -->
-                <div class="text-center">
-                  <span class="inline-block bg-gray-200 rounded-full px-3 py-1 text-xs font-medium text-gray-700">
-                    Today, 10:30 AM
-                  </span>
+                <!-- Loading indicator -->
+                <div v-if="loading" class="flex justify-center items-center h-32">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
                 </div>
                 
-                <!-- Agent Message -->
-                <div class="flex">
-                  <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                    <span class="text-indigo-800 font-bold text-xs">S</span>
-                  </div>
-                  <div class="bg-white rounded-lg p-4 max-w-xs md:max-w-md">
-                    <p class="text-gray-800">Hello! Welcome to FoodStuff customer support. How can I help you today?</p>
-                    <p class="text-xs text-gray-500 mt-1">10:30 AM</p>
-                  </div>
+                <!-- Error message -->
+                <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
+                  <p class="text-red-700">{{ error }}</p>
                 </div>
                 
-                <!-- User Message -->
-                <div class="flex justify-end">
-                  <div class="bg-indigo-500 rounded-lg p-4 max-w-xs md:max-w-md text-white">
-                    <p>Hi there! I have a question about my recent order.</p>
-                    <p class="text-xs text-indigo-200 mt-1">10:31 AM</p>
-                  </div>
-                </div>
-                
-                <!-- Agent Message -->
-                <div class="flex">
-                  <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                    <span class="text-indigo-800 font-bold text-xs">S</span>
-                  </div>
-                  <div class="bg-white rounded-lg p-4 max-w-xs md:max-w-md">
-                    <p class="text-gray-800">Sure, I'd be happy to help. Could you please provide your order number?</p>
-                    <p class="text-xs text-gray-500 mt-1">10:32 AM</p>
-                  </div>
-                </div>
-                
-                <!-- Typing Indicator -->
-                <div v-if="isAgentTyping" class="flex">
-                  <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                    <span class="text-indigo-800 font-bold text-xs">S</span>
-                  </div>
-                  <div class="bg-white rounded-lg p-4 max-w-xs md:max-w-md">
-                    <div class="flex space-x-1">
-                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
-                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+                <!-- Chat messages -->
+                <template v-else>
+                  <div 
+                    v-for="message in messages" 
+                    :key="message.id"
+                    :class="[
+                      'flex',
+                      message.sender_type === 'user' ? 'justify-end' : 'justify-start'
+                    ]"
+                  >
+                    <!-- Agent/System message -->
+                    <div v-if="message.sender_type !== 'user'" class="flex">
+                      <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                        <span class="text-indigo-800 font-bold text-xs">
+                          {{ message.sender_type === 'agent' ? 'S' : 'Sys' }}
+                        </span>
+                      </div>
+                      <div class="bg-white rounded-lg p-4 max-w-xs md:max-w-md">
+                        <p class="text-gray-800">{{ message.message }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                          {{ new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <!-- User message -->
+                    <div v-else class="flex justify-end">
+                      <div class="bg-indigo-500 rounded-lg p-4 max-w-xs md:max-w-md text-white">
+                        <p>{{ message.message }}</p>
+                        <p class="text-xs text-indigo-200 mt-1">
+                          {{ new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                  
+                  <!-- Typing Indicator -->
+                  <div v-if="isAgentTyping" class="flex">
+                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                      <span class="text-indigo-800 font-bold text-xs">S</span>
+                    </div>
+                    <div class="bg-white rounded-lg p-4 max-w-xs md:max-w-md">
+                      <div class="flex space-x-1">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
             
@@ -226,12 +236,13 @@
                   type="text" 
                   placeholder="Type your message here..." 
                   class="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:ring-indigo-500 focus:border-indigo-500"
-                  @keyup.enter="sendMessage"
+                  @keyup.enter="sendNewMessage"
+                  :disabled="loading"
                 >
                 <button 
-                  @click="sendMessage"
+                  @click="sendNewMessage"
                   class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-r-md hover:bg-indigo-700 disabled:opacity-50"
-                  :disabled="!newMessage.trim()"
+                  :disabled="!newMessage.trim() || loading"
                 >
                   Send
                 </button>
@@ -282,10 +293,19 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, nextTick, onMounted, watch } from 'vue'
+import { useChat } from '../composables/useChat'
 
-const newMessage = ref('')
-const isAgentTyping = ref(false)
+const { 
+  messages, 
+  loading, 
+  error, 
+  newMessage, 
+  isAgentTyping, 
+  sendNewMessage,
+  fetchMessages
+} = useChat()
+
 const chatContainer = ref(null)
 
 // Scroll to bottom of chat container
@@ -297,27 +317,15 @@ const scrollToBottom = () => {
   })
 }
 
-// Send message
-const sendMessage = () => {
-  if (!newMessage.value.trim()) return
-  
-  // Add user message to chat (in a real app, this would be sent to backend)
-  console.log('Sending message:', newMessage.value)
-  
-  // Clear input
-  newMessage.value = ''
-  
-  // Show typing indicator
-  isAgentTyping.value = true
-  
-  // Simulate agent response after delay
-  setTimeout(() => {
-    isAgentTyping.value = false
-    scrollToBottom()
-  }, 2000)
-  
+// Watch for new messages and scroll to bottom
+watch(messages, () => {
   scrollToBottom()
-}
+})
+
+// Watch for typing indicator and scroll to bottom
+watch(isAgentTyping, () => {
+  scrollToBottom()
+})
 
 const quickAction = (action) => {
   let message = ''
@@ -336,7 +344,7 @@ const quickAction = (action) => {
   }
   
   newMessage.value = message
-  sendMessage()
+  sendNewMessage()
 }
 
 // Scroll to bottom when component mounts

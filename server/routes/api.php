@@ -13,6 +13,7 @@ use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HelpCategoryController;
 use App\Http\Controllers\HelpTopicController;
 use App\Http\Controllers\HelpArticleController;
+use App\Http\Controllers\ChatController;
 
 // Add CSRF cookie route for SPA authentication
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
@@ -47,6 +48,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payment/initialize', [PaymentController::class, 'initialize']);
     Route::get('/payment/callback', [PaymentController::class, 'callback']);
     Route::get('/payment/verify/{reference}', [PaymentController::class, 'verify']);
+    
+    // Chat routes
+    Route::prefix('chat')->group(function () {
+        Route::get('/messages', [ChatController::class, 'getMessages']);
+        Route::post('/send', [ChatController::class, 'sendMessage']);
+        Route::post('/mark-as-read', [ChatController::class, 'markAsRead']);
+    });
     
     Route::prefix('admin')->group(function() {
         Route::apiResource('/products', ProductController::class);
