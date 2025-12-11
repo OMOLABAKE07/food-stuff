@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('subtotal');
             $table->unsignedBigInteger('shipping')->default(0);
             $table->unsignedBigInteger('total');
-            $table->string('status')->default('pending');
-            $table->string('payment_status')->default('unpaid');
+            $table->enum('status', ['pending', 'processing', 'declined', 'approved', 'delivered'])->default('pending');
+            $table->enum('payment_status', ['paid', 'unpaid'])->default('unpaid');
             $table->json('delivery_address');
             $table->timestamps();
         });

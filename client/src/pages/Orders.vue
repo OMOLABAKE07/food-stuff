@@ -32,7 +32,7 @@
               </p>
             </div>
             <div class="text-right">
-              <p class="text-lg font-medium text-gray-900">₦{{ order.total_amount }}</p>
+              <p class="text-lg font-medium text-gray-900">₦{{ formatCurrency(order.total) }}</p>
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 {{ order.status }}
               </span>
@@ -43,10 +43,25 @@
             <h4 class="text-sm font-medium text-gray-900">Items:</h4>
             <ul class="mt-2 space-y-2">
               <li v-for="item in order.items" :key="item.id" class="flex justify-between text-sm">
-                <span class="text-gray-600">{{ item.quantity }} × {{ item.product.name }}</span>
-                <span>₦{{ item.product.price * item.quantity }}</span>
+                <span class="text-gray-600">{{ item.qty }} × {{ item.product.name }}</span>
+                <span>₦{{ formatCurrency(item.price * item.qty) }}</span>
               </li>
             </ul>
+          </div>
+          
+          <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Subtotal</span>
+              <span>₦{{ formatCurrency(order.subtotal) }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Shipping</span>
+              <span>₦{{ formatCurrency(order.shipping) }}</span>
+            </div>
+            <div class="flex justify-between text-base font-medium text-gray-900 mt-2">
+              <span>Total</span>
+              <span>₦{{ formatCurrency(order.total) }}</span>
+            </div>
           </div>
         </li>
       </ul>
@@ -80,6 +95,11 @@ const fetchOrders = async () => {
 const formatDate = (dateString) => {
   const options = { year: 'numeric', month: 'long', day: 'numeric' }
   return new Date(dateString).toLocaleDateString(undefined, options)
+}
+
+const formatCurrency = (amount) => {
+  // Convert from kobo (smallest unit) to naira
+  return (amount / 100).toFixed(2)
 }
 
 onMounted(() => {
