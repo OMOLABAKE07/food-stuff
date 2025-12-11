@@ -5,10 +5,10 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminOrderController;
-use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HelpCategoryController;
 use App\Http\Controllers\HelpTopicController;
@@ -25,7 +25,6 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{product}', [ProductController::class, 'show']);
@@ -36,17 +35,19 @@ Route::get('/help/menu', [HelpController::class, 'getMenu']);
 Route::get('/help/topics', [HelpController::class, 'getAllTopics']);
 Route::get('/help/topics/{topicSlug}', [HelpController::class, 'getTopic']);
 Route::get('/help/categories', [HelpController::class, 'getCategoriesWithTopics']);
+Route::get('/help/search', [HelpController::class, 'search']);
+Route::post('/help/feedback', [HelpController::class, 'submitFeedback']);
 
 Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'userOrders']);
 
     Route::post('/payment/initialize', [PaymentController::class, 'initialize']);
     Route::get('/payment/callback', [PaymentController::class, 'callback']);
     Route::get('/payment/verify/{reference}', [PaymentController::class, 'verify']);
-});
-
-Route::middleware('auth:sanctum')->group(function () {
+    
     Route::prefix('admin')->group(function() {
         Route::apiResource('/products', ProductController::class);
         Route::get('/orders', [AdminOrderController::class, 'index']);

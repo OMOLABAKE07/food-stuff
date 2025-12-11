@@ -92,7 +92,8 @@ class HelpController extends Controller
                 'description' => $topic->description,
                 'path' => '/help/' . $topic->slug,
                 'action' => 'View guide',
-                'category' => $topic->category ? $topic->category->name : null
+                'category' => $topic->category ? $topic->category->name : null,
+                'is_featured' => $topic->is_featured
             ];
         }
 
@@ -114,5 +115,69 @@ class HelpController extends Controller
             ->get();
 
         return response()->json($categories);
+    }
+    
+    /**
+     * Search help articles and topics
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        $query = $request->input('q');
+        
+        if (!$query) {
+            return response()->json([]);
+        }
+        
+        // Search topics
+        $topics = HelpTopic::where('is_active', true)
+            ->where(function($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('description', 'LIKE', "%{$query}%")
+                  ->orWhere('content', 'LIKE', "%{$query}%");
+            })
+            ->limit(10)
+            ->get(['id', 'title', 'slug', 'description']);
+        
+        // Search articles
+        $articles = HelpArticle::where('is_active', true)
+            ->where(function($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('content', 'LIKE', "%{$query}%");
+            })
+            ->with('topic')
+            ->limit(10)
+            ->get(['id', 'title', 'content', 'topic_id']);
+        
+        return response()->json([
+            'topics' => $topics,
+            'articles' => $articles
+        ]);
+    }
+    
+    /**
+     * Submit feedback for a help article
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function submitFeedback(Request $request)
+    {
+        $validatedData = $request->validate([
+            'topic_id' => 'required|exists:help_topics,id',
+            'helpful' => 'required|boolean',
+            'comment' => 'nullable|string|max:1000'
+        ]);
+        
+        // In a real implementation, you would save this feedback to the database
+        // For now, we'll just log it and return success
+        \Log::info('Help feedback submitted', $validatedData);
+        
+        return response()->json([
+            'message' => 'Feedback submitted successfully',
+            'success' => true
+        ]);
     }
 }

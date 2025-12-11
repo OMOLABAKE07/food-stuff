@@ -1,96 +1,108 @@
-import helpMenuConfig from '../config/helpMenu';
-import api from './api';
+import api from './api'
 
-// Help service to manage help menu items and content dynamically
-
-// Function to get help menu items
-export function getHelpMenuItems() {
-  return api.get('/help/menu')
-    .then(response => response.data)
-    .catch(error => {
-      console.error('Failed to fetch help menu items:', error);
-      // Fallback to static data
-      return [
-        { label: 'Place an order', path: '/help/place-order' },
-        { label: 'Payment options', path: '/help/payment-options' },
-        { label: 'Track an order', path: '/help/track-order' },
-        { label: 'Cancel an order', path: '/help/cancel-order' },
-        { label: 'Returns & Refunds', path: '/help/returns-refunds' },
-        { isDivider: true },
-        { label: 'Live Chat', path: '/live-chat' }
-      ];
-    });
+/**
+ * Get help menu items
+ * @returns {Promise<Array>}
+ */
+export const getHelpMenu = async () => {
+  try {
+    const response = await api.get('/help/menu')
+    return response.data
+  } catch (error) {
+    console.error('Error fetching help menu:', error)
+    throw error
+  }
 }
 
-// Function to get help topic content
-export function getHelpTopic(topicId) {
-  return api.get(`/help/topics/${topicId}`)
-    .then(response => response.data)
-    .catch(error => {
-      console.error(`Failed to fetch help topic ${topicId}:`, error);
-      // Return null if topic not found
-      return null;
-    });
+/**
+ * Get all help topics
+ * @returns {Promise<Object>}
+ */
+export const getAllHelpTopics = async () => {
+  try {
+    const response = await api.get('/help/topics')
+    return response.data
+  } catch (error) {
+    console.error('Error fetching help topics:', error)
+    throw error
+  }
 }
 
-// Function to get all help topics
-export function getAllHelpTopics() {
-  return api.get('/help/topics')
-    .then(response => response.data)
-    .catch(error => {
-      console.error('Failed to fetch help topics:', error);
-      // Fallback to static data
-      return {
-        'place-order': {
-          title: 'Place an order',
-          description: 'Learn how to browse products and place your first order.',
-          path: '/help/place-order',
-          action: 'View guide'
-        },
-        'payment-options': {
-          title: 'Payment options',
-          description: 'Discover all the payment methods we support.',
-          path: '/help/payment-options',
-          action: 'View options'
-        },
-        'track-order': {
-          title: 'Track an order',
-          description: 'Find out how to track your order status and delivery.',
-          path: '/help/track-order',
-          action: 'Track now'
-        },
-        'cancel-order': {
-          title: 'Cancel an order',
-          description: 'Learn how to cancel your order before it ships.',
-          path: '/help/cancel-order',
-          action: 'Learn more'
-        },
-        'returns-refunds': {
-          title: 'Returns & Refunds',
-          description: 'Understand our return policy and refund process.',
-          path: '/help/returns-refunds',
-          action: 'Read policy'
-        },
-        'live-chat': {
-          title: 'Live Chat',
-          description: 'Chat with our customer support team in real-time.',
-          path: '/live-chat',
-          action: 'Start chat'
-        }
-      };
-    });
+/**
+ * Get help categories with topics
+ * @returns {Promise<Array>}
+ */
+export const getHelpCategories = async () => {
+  try {
+    const response = await api.get('/help/categories')
+    return response.data
+  } catch (error) {
+    console.error('Error fetching help categories:', error)
+    throw error
+  }
 }
 
-// Function to update help menu configuration (for admin use)
-export function updateHelpMenuConfig(newConfig) {
-  // In a real application, this would make an API call to update the configuration
-  console.log('Updating help menu configuration:', newConfig);
-  return Promise.resolve({ success: true });
+/**
+ * Get specific help topic with articles
+ * @param {string} topicSlug - The slug of the topic to fetch
+ * @returns {Promise<Object>}
+ */
+export const getHelpTopic = async (topicSlug) => {
+  try {
+    const response = await api.get(`/help/topics/${topicSlug}`)
+    return response.data
+  } catch (error) {
+    console.error(`Error fetching help topic ${topicSlug}:`, error)
+    throw error
+  }
 }
 
-export default {
-  getHelpMenuItems,
-  getHelpTopic,
-  getAllHelpTopics,
-  updateHelpMenuConfig
-};
+/**
+ * Search help articles
+ * @param {string} query - The search query
+ * @returns {Promise<Array>}
+ */
+export const searchHelpArticles = async (query) => {
+  try {
+    const response = await api.get('/help/search', {
+      params: { q: query }
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error searching help articles:', error)
+    throw error
+  }
+}
+
+/**
+ * Submit feedback for a help article
+ * @param {Object} feedbackData - The feedback data
+ * @returns {Promise<Object>}
+ */
+export const submitFeedback = async (feedbackData) => {
+  try {
+    const response = await api.post('/help/feedback', feedbackData)
+    return response.data
+  } catch (error) {
+    console.error('Error submitting feedback:', error)
+    throw error
+  }
+}
+
+/**
+ * Get popular help topics
+ * @returns {Promise<Array>}
+ */
+export const getPopularTopics = async () => {
+  try {
+    // For now, we'll get all topics and sort by popularity
+    // In a real implementation, this would be a separate endpoint
+    const response = await api.get('/help/topics')
+    const topics = Object.values(response.data)
+    // Sort by some popularity metric (in a real app, this would be based on views/ratings)
+    return topics.sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 5)
+  } catch (error) {
+    console.error('Error fetching popular topics:', error)
+    throw error
+  }
+}

@@ -29,15 +29,7 @@
       </ol>
     </nav>
     
-    <div v-if="loading" class="flex justify-center items-center h-64">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-    </div>
-    
-    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
-      <p class="text-red-700">{{ error }}</p>
-    </div>
-    
-    <div v-else-if="topicData" class="flex flex-col lg:flex-row gap-8">
+    <div class="flex flex-col lg:flex-row gap-8">
       <!-- Sidebar Navigation -->
       <div class="lg:w-1/4">
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -92,11 +84,29 @@
       
       <!-- Main Content -->
       <div class="lg:w-3/4">
-        <div class="bg-white rounded-lg shadow-sm p-6">
-          <h1 class="text-3xl font-bold text-gray-900 mb-6">{{ topicData.title }}</h1>
+        <div v-if="loading" class="flex justify-center items-center h-64">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+        </div>
+        
+        <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
+          <p class="text-red-700">{{ error }}</p>
+        </div>
+        
+        <div v-else-if="topicData" class="bg-white rounded-lg shadow-sm p-6">
+          <div class="flex items-center mb-6">
+            <div class="bg-indigo-100 p-3 rounded-lg mr-4">
+              <svg class="w-6 h-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">{{ topicData.title }}</h1>
+              <p class="text-gray-600">{{ topicData.description }}</p>
+            </div>
+          </div>
           
           <div class="prose max-w-none">
-            <p class="text-gray-600 mb-8">{{ topicData.description }}</p>
+            <div v-html="topicData.content" class="mb-8"></div>
             
             <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8">
               <div class="flex">
@@ -113,30 +123,110 @@
               </div>
             </div>
             
-            <ol class="space-y-8">
-              <li 
-                v-for="step in topicData.steps" 
-                :key="step.number" 
-                class="flex"
-              >
-                <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
-                  <span class="text-indigo-800 font-bold">{{ step.number }}</span>
-                </div>
-                <div>
-                  <h3 class="text-lg font-medium text-gray-900 mb-2">{{ step.title }}</h3>
-                  <p class="text-gray-600 mb-4">{{ step.content }}</p>
-                  
-                  <!-- Step illustration (placeholder) -->
-                  <div v-if="step.number === 1" class="bg-gray-100 border-2 border-dashed rounded-xl w-full h-48 mb-4 flex items-center justify-center">
-                    <span class="text-gray-500">Product browsing illustration</span>
+            <!-- Articles/Steps -->
+            <div v-if="topicData.articles && topicData.articles.length > 0" class="mb-12">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6">Step-by-Step Guide</h2>
+              <div class="space-y-8">
+                <div 
+                  v-for="(article, index) in topicData.articles" 
+                  :key="article.id"
+                  class="flex"
+                >
+                  <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                    <span class="text-indigo-800 font-bold">{{ index + 1 }}</span>
                   </div>
-                  
-                  <div v-else-if="step.number === 3" class="bg-gray-100 border-2 border-dashed rounded-xl w-full h-48 mb-4 flex items-center justify-center">
-                    <span class="text-gray-500">Checkout process illustration</span>
+                  <div class="flex-1">
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">{{ article.title }}</h3>
+                    <div v-html="article.content" class="text-gray-600 mb-4"></div>
+                    
+                    <!-- Step illustration (placeholder) -->
+                    <div v-if="index === 0" class="bg-gray-100 border-2 border-dashed rounded-xl w-full h-48 mb-4 flex items-center justify-center">
+                      <span class="text-gray-500">Product browsing illustration</span>
+                    </div>
+                    
+                    <div v-else-if="index === 2" class="bg-gray-100 border-2 border-dashed rounded-xl w-full h-48 mb-4 flex items-center justify-center">
+                      <span class="text-gray-500">Checkout process illustration</span>
+                    </div>
                   </div>
                 </div>
-              </li>
-            </ol>
+              </div>
+            </div>
+            
+            <!-- FAQ Section -->
+            <div class="mt-12">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+              <div class="space-y-4">
+                <div class="border border-gray-200 rounded-lg">
+                  <button 
+                    @click="toggleFaq(0)"
+                    class="flex justify-between items-center w-full p-4 text-left"
+                  >
+                    <span class="font-medium text-gray-900">Can I modify my order after placing it?</span>
+                    <svg 
+                      class="h-5 w-5 text-gray-500 transform transition-transform" 
+                      :class="{ 'rotate-180': openFaqs[0] }"
+                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    >
+                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  <div v-show="openFaqs[0]" class="p-4 pt-0 border-t border-gray-200">
+                    <p class="text-gray-600">
+                      You can modify your order only if it is still in the "Processing" status. 
+                      Once an order has been shipped, modifications are not possible. 
+                      Please contact our support team immediately for assistance.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg">
+                  <button 
+                    @click="toggleFaq(1)"
+                    class="flex justify-between items-center w-full p-4 text-left"
+                  >
+                    <span class="font-medium text-gray-900">What payment methods are accepted?</span>
+                    <svg 
+                      class="h-5 w-5 text-gray-500 transform transition-transform" 
+                      :class="{ 'rotate-180': openFaqs[1] }"
+                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    >
+                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  <div v-show="openFaqs[1]" class="p-4 pt-0 border-t border-gray-200">
+                    <p class="text-gray-600">
+                      We accept various payment methods including credit/debit cards, bank transfers, 
+                      mobile money, and cash on delivery. For more details, visit our 
+                      <router-link to="/help/payment-options" class="text-indigo-600 hover:text-indigo-800">Payment Options</router-link> page.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg">
+                  <button 
+                    @click="toggleFaq(2)"
+                    class="flex justify-between items-center w-full p-4 text-left"
+                  >
+                    <span class="font-medium text-gray-900">How long does delivery take?</span>
+                    <svg 
+                      class="h-5 w-5 text-gray-500 transform transition-transform" 
+                      :class="{ 'rotate-180': openFaqs[2] }"
+                      xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                    >
+                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  <div v-show="openFaqs[2]" class="p-4 pt-0 border-t border-gray-200">
+                    <p class="text-gray-600">
+                      Delivery times vary depending on your location and the shipping method selected. 
+                      Standard delivery typically takes 1-3 business days within major cities and 
+                      3-5 business days for rural areas. For more information, visit our 
+                      <router-link to="/help/track-order" class="text-indigo-600 hover:text-indigo-800">Delivery & Shipping</router-link> page.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           
           <!-- Feedback section -->
@@ -190,22 +280,27 @@
             </div>
           </div>
         </div>
+        
+        <div v-else class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+          <p class="text-yellow-700">Help content not available.</p>
+        </div>
       </div>
-    </div>
-    
-    <div v-else class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-      <p class="text-yellow-700">Help content not available.</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { getHelpTopic } from '../../services/helpService'
 
 const topicData = ref(null)
 const loading = ref(true)
 const error = ref(null)
+const openFaqs = reactive([false, false, false])
+
+const toggleFaq = (index) => {
+  openFaqs[index] = !openFaqs[index]
+}
 
 const rateHelpful = (isHelpful) => {
   // In a real application, this would send feedback to the backend

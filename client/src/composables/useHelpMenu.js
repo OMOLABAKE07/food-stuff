@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue'
-import { getHelpMenuItems } from '../services/helpService'
+import { getHelpMenu } from '../services/helpService'
 
 // Composable to manage help menu state
 export function useHelpMenu() {
@@ -13,7 +13,7 @@ export function useHelpMenu() {
       loading.value = true
       error.value = null
       
-      const items = await getHelpMenuItems()
+      const items = await getHelpMenu()
       helpMenuItems.value = items
     } catch (err) {
       error.value = 'Failed to load help menu items'

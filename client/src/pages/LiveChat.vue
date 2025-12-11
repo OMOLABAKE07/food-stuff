@@ -148,9 +148,22 @@
           </div>
           
           <!-- Chat Container -->
-          <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <div class="border border-gray-200 rounded-lg overflow-hidden flex flex-col h-[500px]">
+            <!-- Chat Header -->
+            <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                  <span class="text-indigo-800 font-bold">S</span>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm font-medium text-gray-900">Support Agent</p>
+                  <p class="text-xs text-gray-500">Typically replies in a few minutes</p>
+                </div>
+              </div>
+            </div>
+            
             <!-- Chat Messages -->
-            <div class="h-96 overflow-y-auto p-4 bg-gray-50">
+            <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 bg-gray-50">
               <div class="space-y-4">
                 <!-- System Message -->
                 <div class="text-center">
@@ -188,6 +201,20 @@
                     <p class="text-xs text-gray-500 mt-1">10:32 AM</p>
                   </div>
                 </div>
+                
+                <!-- Typing Indicator -->
+                <div v-if="isAgentTyping" class="flex">
+                  <div class="flex-shrink-0 h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
+                    <span class="text-indigo-800 font-bold text-xs">S</span>
+                  </div>
+                  <div class="bg-white rounded-lg p-4 max-w-xs md:max-w-md">
+                    <div class="flex space-x-1">
+                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                      <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -195,6 +222,7 @@
             <div class="border-t border-gray-200 p-4 bg-white">
               <div class="flex">
                 <input 
+                  v-model="newMessage"
                   type="text" 
                   placeholder="Type your message here..." 
                   class="flex-grow px-4 py-2 border border-gray-300 rounded-l-md focus:ring-indigo-500 focus:border-indigo-500"
@@ -202,10 +230,14 @@
                 >
                 <button 
                   @click="sendMessage"
-                  class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-r-md hover:bg-indigo-700"
+                  class="px-6 py-2 bg-indigo-600 text-white font-medium rounded-r-md hover:bg-indigo-700 disabled:opacity-50"
+                  :disabled="!newMessage.trim()"
                 >
                   Send
                 </button>
+              </div>
+              <div class="mt-2 text-xs text-gray-500">
+                Press Enter to send
               </div>
             </div>
           </div>
@@ -216,7 +248,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <button 
                 @click="quickAction('order_status')"
-                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <svg class="h-8 w-8 text-indigo-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -225,7 +257,7 @@
               </button>
               <button 
                 @click="quickAction('return_request')"
-                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <svg class="h-8 w-8 text-indigo-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -234,7 +266,7 @@
               </button>
               <button 
                 @click="quickAction('payment_issue')"
-                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+                class="flex flex-col items-center justify-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <svg class="h-8 w-8 text-indigo-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -250,17 +282,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
 
+const newMessage = ref('')
+const isAgentTyping = ref(false)
+const chatContainer = ref(null)
+
+// Scroll to bottom of chat container
+const scrollToBottom = () => {
+  nextTick(() => {
+    if (chatContainer.value) {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    }
+  })
+}
+
+// Send message
 const sendMessage = () => {
-  // In a real application, this would send the message to the backend
-  console.log('Sending message')
+  if (!newMessage.value.trim()) return
+  
+  // Add user message to chat (in a real app, this would be sent to backend)
+  console.log('Sending message:', newMessage.value)
+  
+  // Clear input
+  newMessage.value = ''
+  
+  // Show typing indicator
+  isAgentTyping.value = true
+  
+  // Simulate agent response after delay
+  setTimeout(() => {
+    isAgentTyping.value = false
+    scrollToBottom()
+  }, 2000)
+  
+  scrollToBottom()
 }
 
 const quickAction = (action) => {
-  // In a real application, this would trigger specific workflows
-  console.log('Quick action triggered:', action)
-  
   let message = ''
   switch(action) {
     case 'order_status':
@@ -276,6 +335,12 @@ const quickAction = (action) => {
       message = 'I need help with my account.'
   }
   
-  alert(`Quick action selected: ${action}\n\nMessage that would be sent: "${message}"`)
+  newMessage.value = message
+  sendMessage()
 }
+
+// Scroll to bottom when component mounts
+onMounted(() => {
+  scrollToBottom()
+})
 </script>
