@@ -9,25 +9,25 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-  public function register(Request $req)
-{
-    $data = $req->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:6|confirmed', // automatically checks password_confirmation
-    ]);
+    public function register(Request $req)
+    {
+        $data = $req->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6|confirmed', // automatically checks password_confirmation
+        ]);
 
-    $user = User::create([
-        'name' => $data['name'],
-        'email' => $data['email'],
-        'password' => Hash::make($data['password'])
-    ]);
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password'])
+        ]);
 
-    // Create a Sanctum token for the user
-    $token = $user->createToken('auth-token')->plainTextToken;
+        // Create a Sanctum token for the user
+        $token = $user->createToken('auth-token')->plainTextToken;
 
-    return response()->json(['user' => $user, 'token' => $token]);
-}
+        return response()->json(['user' => $user, 'token' => $token]);
+    }
 
     public function login(Request $req)
     {
@@ -50,28 +50,22 @@ class AuthController extends Controller
         return response()->json(['user' => $user, 'token' => $token]);
     }
 
-    public function logout(Request $req)
+    public function logout(Request $request)
     {
-        // Revoke all tokens for the user
-        Auth::user()->tokens()->delete();
-        
-        Auth::logout();
-        
-        if ($req->hasSession()) {
-            $req->session()->invalidate();
-            $req->session()->regenerateToken();
-        }
-        
-        return response()->json(['message' => 'Logged out']);
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out'
+        ]);
     }
-    
+
     /**
      * Update the authenticated user's profile
      */
     public function updateProfile(Request $request)
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:users,email,' . $user->id,
@@ -81,9 +75,9 @@ class AuthController extends Controller
             'state' => 'nullable|string|max:100',
             'zip' => 'nullable|string|max:20'
         ]);
-        
+
         $user->update($validated);
-        
+
         return response()->json(['user' => $user, 'message' => 'Profile updated successfully']);
     }
 }

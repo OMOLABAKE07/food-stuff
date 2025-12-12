@@ -9,6 +9,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\HelpController;
 use App\Http\Controllers\HelpCategoryController;
 use App\Http\Controllers\HelpTopicController;
@@ -45,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'userOrders']);
+    
+    Route::post('/cart', [CartController::class, 'createCart']);
 
     Route::post('/payment/initialize', [PaymentController::class, 'initialize']);
     Route::get('/payment/callback', [PaymentController::class, 'callback']);
