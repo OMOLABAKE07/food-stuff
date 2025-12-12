@@ -13,8 +13,8 @@
           <form @submit.prevent="handleSubmit" class="space-y-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label for="first-name" class="block text-sm font-medium text-gray-700">Full name</label>
-                <Input id="first-name" v-model="form.name" type="text" required class="mt-1" />
+                <label for="name" class="block text-sm font-medium text-gray-700">Full name</label>
+                <Input id="name" v-model="form.name" type="text" required class="mt-1" />
               </div>
               
                <div>
@@ -133,8 +133,13 @@ const authStore = useAuth()
 // Initialize form with user data if available
 onMounted(() => {
   if (authStore.user) {
-    form.value.name = authStore.user.name.split(' ')[0] || ''
+    form.value.name = authStore.user.name || ''
     form.value.email = authStore.user.email || ''
+    form.value.phone = authStore.user.phone || ''
+    form.value.address = authStore.user.address || ''
+    form.value.city = authStore.user.city || ''
+    form.value.state = authStore.user.state || ''
+    form.value.zip = authStore.user.zip || ''
   }
   
   // Check if we were redirected from login
@@ -147,7 +152,7 @@ onMounted(() => {
 const deliveryFee = 1000
 
 const form = ref({
-   name: '',
+  name: '',
   address: '',
   city: '',
   state: '',
@@ -181,8 +186,7 @@ const handleSubmit = async () => {
         quantity: item.qty
       })),
       shipping_address: {
-        first_name: form.value.firstName,
-        last_name: form.value.lastName,
+        name: form.value.name,
         address: form.value.address,
         city: form.value.city,
         state: form.value.state,
@@ -197,10 +201,9 @@ const handleSubmit = async () => {
     success.value = true
     orderCreated.value = true
 
-    // 🔥 Reset form after successful order
+    // Reset form after successful order
     form.value = {
-      firstName: '',
-      lastName: '',
+      name: '',
       address: '',
       city: '',
       state: '',

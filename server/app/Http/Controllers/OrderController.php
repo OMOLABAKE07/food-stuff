@@ -71,6 +71,18 @@ class OrderController extends Controller
             ]);
         }
 
+        // Update user profile with shipping address information
+        $user = Auth::user();
+        $shippingAddress = $validated['shipping_address'];
+        
+        $user->update([
+            'phone' => $shippingAddress['phone'] ?? $user->phone,
+            'address' => $shippingAddress['address'] ?? $user->address,
+            'city' => $shippingAddress['city'] ?? $user->city,
+            'state' => $shippingAddress['state'] ?? $user->state,
+            'zip' => $shippingAddress['zip'] ?? $user->zip
+        ]);
+
         // Load relationships for response and notifications
         $order->load('items.product', 'user');
 

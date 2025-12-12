@@ -41,6 +41,7 @@ Route::post('/help/feedback', [HelpController::class, 'submitFeedback']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/user/profile', [AuthController::class, 'updateProfile']);
     
     Route::post('/orders', [OrderController::class, 'store']);
     Route::get('/orders', [OrderController::class, 'userOrders']);
