@@ -264,7 +264,7 @@
               >
                 <svg class="h-5 w-5 text-gray-400 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                  <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 100 2h1a1 1 0 100-2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd" />
                 </svg>
                 <span class="text-gray-700">Payment Options</span>
               </router-link>
@@ -292,6 +292,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { getHelpTopic } from '../../services/helpService'
+import toastr from '../../utils/toastr'
 
 const topicData = ref(null)
 const loading = ref(true)
@@ -306,10 +307,12 @@ const rateHelpful = (isHelpful) => {
   // In a real application, this would send feedback to the backend
   console.log('User rated article as helpful:', isHelpful)
   
-  // Show confirmation
-  alert(isHelpful 
-    ? 'Thank you for your feedback!' 
-    : 'Thank you for your feedback! We\'ll work to improve this article.')
+  // Show confirmation with Toastr
+  if (isHelpful) {
+    toastr.success('Thank you for your feedback!')
+  } else {
+    toastr.info('Thank you for your feedback! We\'ll work to improve this article.')
+  }
 }
 
 onMounted(async () => {

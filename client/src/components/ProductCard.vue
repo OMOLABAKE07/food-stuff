@@ -21,7 +21,7 @@
           @click="$emit('add-to-cart', product)"
           variant="default"
           size="sm"
-          class="transition-colors hover:bg-indigo-700 text-white"
+          class="bg-indigo-600 text-white px-3 py-1 rounded-md text-sm hover:bg-indigo-700"
         >
           Add to Cart
         </Button>

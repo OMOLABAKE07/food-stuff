@@ -404,6 +404,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { getHelpTopic } from '../../services/helpService'
+import toastr from '../../utils/toastr'
 
 const topicData = ref(null)
 const loading = ref(true)
@@ -418,10 +419,12 @@ const rateHelpful = (isHelpful) => {
   // In a real application, this would send feedback to the backend
   console.log('User rated article as helpful:', isHelpful)
   
-  // Show confirmation
-  alert(isHelpful 
-    ? 'Thank you for your feedback!' 
-    : 'Thank you for your feedback! We\'ll work to improve this article.')
+  // Show confirmation with Toastr
+  if (isHelpful) {
+    toastr.success('Thank you for your feedback!')
+  } else {
+    toastr.info('Thank you for your feedback! We\'ll work to improve this article.')
+  }
 }
 
 onMounted(async () => {

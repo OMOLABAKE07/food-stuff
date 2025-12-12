@@ -146,6 +146,7 @@ import Modal from '../../components/ui/Modal.vue'
 import AdminTable from '../../components/ui/AdminTable.vue'
 import ImageUploader from '../../components/ImageUploader.vue'
 import api from '../../services/api'
+import toastr from '../../utils/toastr'
 
 const products = ref([])
 const loading = ref(false)
@@ -294,6 +295,16 @@ const saveProduct = async () => {
 
     showModal.value = false
     await fetchProducts()
+    
+    // Show success message
+    if (editingProduct.value) {
+      toastr.success('Product updated successfully!')
+    } else {
+      toastr.success('Product created successfully!')
+    }
+    
+    // Reset form
+    resetForm()
   } catch (error) {
     console.error('Failed to save product:', error)
     
@@ -317,14 +328,29 @@ const saveProduct = async () => {
   }
 }
 
+const resetForm = () => {
+  productForm.value = {
+    name: '',
+    description: '',
+    price: 0,
+    stock: 0,
+    is_active: true
+  }
+  productImages.value = []
+  errors.value = {}
+  formError.value = ''
+  showModal.value = false
+}
+
 const deleteProduct = async (id) => {
   if (confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
     try {
       await api.delete(`/admin/products/${id}`)
       await fetchProducts()
+      toastr.success('Product deleted successfully!')
     } catch (error) {
       console.error('Failed to delete product:', error)
-      alert('Failed to delete product: ' + (error.response?.data?.message || error.message))
+      toastr.error('Failed to delete product: ' + (error.response?.data?.message || error.message))
     }
   }
 }

@@ -81,14 +81,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useAuth } from '../Stores/auth'
+import { ref, computed, onMounted } from 'vue'
 import { useCart } from '../Stores/cart'
 import ProductCard from '../components/ProductCard.vue'
-import api from '../services/api'
-
-const authStore = useAuth()
-const cartStore = useCart()
+import toastr from '../utils/toastr'
 
 const products = ref([])
 const categories = ref([])
@@ -98,13 +94,15 @@ const searchQuery = ref('')
 const selectedCategory = ref('')
 const sortBy = ref('')
 
+const cartStore = useCart()
+
 const fetchProducts = async () => {
   loading.value = true
   error.value = ''
   
   try {
-    const response = await api.get('/products')
-    products.value = response.data
+    const response = await fetch('/api/products')
+    products.value = await response.json()
   } catch (err) {
     error.value = 'Failed to load products'
     console.error(err)
@@ -115,10 +113,10 @@ const fetchProducts = async () => {
 
 const fetchCategories = async () => {
   try {
-    const response = await api.get('/categories')
-    categories.value = response.data
+    const response = await fetch('/api/categories')
+    categories.value = await response.json()
   } catch (err) {
-    console.error('Failed to load categories:', err)
+    console.error('Failed to load categories', err)
   }
 }
 
@@ -163,13 +161,8 @@ const handleSearch = () => {
 
 const addToCart = (product) => {
   cartStore.add(product)
-  // Show a brief notification
-  showNotification(`${product.name} added to cart!`)
-}
-
-const showNotification = (message) => {
-  // Simple notification - in a real app you might use a toast library
-  alert(message)
+  // Show a Toastr notification
+  toastr.success(`${product.name} added to cart!`)
 }
 
 onMounted(() => {

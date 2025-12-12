@@ -83,34 +83,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useCart } from '../Stores/cart'
-import api from '../services/api'
+import toastr from '../utils/toastr'
 
 const route = useRoute()
-const router = useRouter()
 const cartStore = useCart()
 
 const product = ref(null)
 const loading = ref(false)
 const error = ref('')
-const currentImageIndex = ref(0)
-
-const currentImage = computed(() => {
-  if (product.value && product.value.images && product.value.images.length > 0) {
-    return product.value.images[currentImageIndex.value]
-  }
-  return null
-})
 
 const fetchProduct = async () => {
   loading.value = true
   error.value = ''
   
   try {
-    const response = await api.get(`/products/${route.params.id}`)
-    product.value = response.data
+    const response = await fetch(`/api/products/${route.params.id}`)
+    product.value = await response.json()
   } catch (err) {
     error.value = 'Failed to load product'
     console.error(err)
@@ -119,15 +110,10 @@ const fetchProduct = async () => {
   }
 }
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat('en-NG').format(price)
-}
-
 const addToCart = () => {
   if (product.value) {
     cartStore.add(product.value)
-    // Show a success message or animation
-    alert(`${product.value.name} added to cart!`)
+    toastr.success(`${product.value.name} added to cart!`)
   }
 }
 
