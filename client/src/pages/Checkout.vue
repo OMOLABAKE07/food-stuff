@@ -67,22 +67,27 @@
         <div class="space-y-4">
           <div v-for="item in cartStore.items" :key="item.id" class="flex justify-between">
             <span class="text-gray-600">{{ item.name }} × {{ item.qty }}</span>
-            <span class="font-medium">₦{{ item.price * item.qty }}</span>
+            <span class="font-medium">₦{{ formatPrice((item.addedPrice || item.price) * item.qty) }}</span>
           </div>
           
           <div class="flex justify-between pt-4 border-t border-gray-200">
             <span class="text-gray-600">Subtotal</span>
-            <span class="font-medium">₦{{ subtotal }}</span>
+            <span class="font-medium">₦{{ formatPrice(subtotal) }}</span>
           </div>
           
           <div class="flex justify-between">
             <span class="text-gray-600">Delivery</span>
-            <span class="font-medium">₦{{ deliveryFee }}</span>
+            <span class="font-medium">₦{{ formatPrice(deliveryFee) }}</span>
+          </div>
+          
+          <div class="flex justify-between">
+            <span class="text-gray-600">Tax</span>
+            <span class="font-medium">₦{{ formatPrice(tax) }}</span>
           </div>
           
           <div class="flex justify-between border-t border-gray-200 pt-4">
             <span class="text-base font-medium text-gray-900">Total</span>
-            <span class="text-base font-medium text-gray-900">₦{{ total }}</span>
+            <span class="text-base font-medium text-gray-900">₦{{ formatPrice(total) }}</span>
           </div>
         </div>
         
@@ -150,6 +155,7 @@ onMounted(() => {
 })
 
 const deliveryFee = 1000
+const taxRate = 0.075 // 7.5% tax
 
 const form = ref({
   name: '',
@@ -169,10 +175,14 @@ const orderId = ref(null)
 const paymentSuccess = ref(false)
 
 const subtotal = computed(() => {
-  return cartStore.items.reduce((sum, item) => sum + (item.price * item.qty), 0)
+  return cartStore.items.reduce((sum, item) => sum + (item.addedPrice || item.price) * item.qty, 0)
 })
 
-const total = computed(() => subtotal.value + deliveryFee)
+const tax = computed(() => {
+  return Math.round(subtotal.value * taxRate)
+})
+
+const total = computed(() => subtotal.value + deliveryFee + tax.value)
 
 const handleSubmit = async () => {
   loading.value = true
@@ -231,4 +241,9 @@ const handlePaymentSuccess = () => {
 const handlePaymentError = (error) => {
   console.error('Payment error:', error)
 }
+
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('en-NG').format(price)
+}
+
 </script>

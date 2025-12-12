@@ -98,8 +98,8 @@ const formatDate = (dateString) => {
 }
 
 const formatCurrency = (amount) => {
-  // Convert from kobo (smallest unit) to naira
-  return (amount / 100).toFixed(2)
+  // Format amount with commas (amounts are stored in Naira)
+  return new Intl.NumberFormat('en-NG').format(amount)
 }
 
 onMounted(() => {

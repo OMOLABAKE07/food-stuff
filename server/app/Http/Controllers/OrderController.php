@@ -47,28 +47,52 @@ class OrderController extends Controller
             'total_amount' => 'required|integer|min:1'
         ]);
 
+        // Calculate order totals
+        $subtotal = 0;
+        $itemsData = [];
+        
+        foreach ($validated['items'] as $item) {
+            $product = Product::find($item['product_id']);
+            $itemTotal = $product->price * $item['quantity'];
+            $subtotal += $itemTotal;
+            
+            $itemsData[] = [
+                'product_id' => $item['product_id'],
+                'qty' => $item['quantity'],
+                'price' => $product->price,
+                'total' => $itemTotal
+            ];
+        }
+        
+        // Calculate tax (7.5%) and shipping fee
+        $tax = round($subtotal * 0.075);
+        $shipping = 1000;
+        $calculatedTotal = $subtotal + $tax + $shipping;
+        
+        // Verify that the frontend total matches our calculation
+        if ($validated['total_amount'] != $calculatedTotal) {
+            return response()->json([
+                'message' => 'Order total mismatch',
+                'expected' => $calculatedTotal,
+                'received' => $validated['total_amount']
+            ], 422);
+        }
+
         // Create the order
         $order = Order::create([
             'user_id' => Auth::id(),
-            'subtotal' => $validated['total_amount'] - 1000, // Assuming 1000 is shipping fee
-            'shipping' => 1000,
-            'total' => $validated['total_amount'],
+            'subtotal' => $subtotal,
+            'tax' => $tax,
+            'shipping' => $shipping,
+            'total' => $calculatedTotal,
             'status' => 'pending',
             'payment_status' => 'unpaid',
             'delivery_address' => $validated['shipping_address']
         ]);
 
         // Create order items
-        foreach ($validated['items'] as $item) {
-            $product = Product::find($item['product_id']);
-            
-            OrderItem::create([
-                'order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'qty' => $item['quantity'],
-                'price' => $product->price,
-                'total' => $product->price * $item['quantity']
-            ]);
+        foreach ($itemsData as $itemData) {
+            OrderItem::create(array_merge(['order_id' => $order->id], $itemData));
         }
 
         // Update user profile with shipping address information

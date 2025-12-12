@@ -38,8 +38,9 @@ class PaymentController extends Controller
         ]);
 
         // Prepare data for Paystack
+        // Convert Naira to Kobo (1 Naira = 100 Kobo)
         $data = [
-            "amount" => $order->total,
+            "amount" => $order->total * 100,  // Convert to kobo for Paystack
             "reference" => $reference,
             "email" => Auth::user()->email,
             "currency" => "NGN",
