@@ -17,9 +17,14 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed', // automatically checks password_confirmation
         ]);
 
+        // Check if this is the first user (make them admin)
+        $userCount = User::count();
+        $isAdmin = $userCount === 0;
+        
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'role' => $isAdmin ? 'admin' : 'customer',
             'password' => Hash::make($data['password'])
         ]);
 

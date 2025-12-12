@@ -60,7 +60,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/mark-as-read', [ChatController::class, 'markAsRead']);
     });
     
-    Route::prefix('admin')->group(function() {
+    Route::prefix('admin')->middleware('admin')->group(function() {
         Route::apiResource('/products', ProductController::class);
         Route::get('/orders', [AdminOrderController::class, 'index']);
         Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);

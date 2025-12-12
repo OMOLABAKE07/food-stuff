@@ -11,7 +11,10 @@ app.use(router)
 app.use(createPinia())
 
 // Initialize auth state
-const authStore = useAuth()
-authStore.init()
+const initApp = async () => {
+  const authStore = useAuth()
+  await authStore.init()
+  app.mount('#app')
+}
 
-app.mount('#app')
+initApp()

@@ -84,6 +84,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/Stores/auth'
+import toastr from '@/utils/toastr'
 
 const router = useRouter()
 const authStore = useAuth()
@@ -95,14 +96,20 @@ const loading = ref(false)
 const handleLogin = async () => {
   loading.value = true
   try {
-    // In a real app, you would call the auth store login method
-    // For now, we'll simulate a successful login
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    // Actually authenticate the user
+    await authStore.login(email.value, password.value)
     
-    // Redirect to admin dashboard
-    router.push('/admin/dashboard')
+    // Check if user is admin
+    if (authStore.user && authStore.user.role === 'admin') {
+      // Redirect to admin dashboard
+      router.push('/admin')
+    } else {
+      // Not an admin, show error
+      toastr.error('Access denied. Administrator privileges required.')
+    }
   } catch (error) {
     console.error('Login failed:', error)
+    toastr.error('Login failed. Please check your credentials and try again.')
   } finally {
     loading.value = false
   }

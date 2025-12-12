@@ -12,23 +12,37 @@
       </div>
     </div>
     
+    <!-- Loading indicator -->
+    <div v-if="loading" class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+    </div>
+    
+    <!-- Error message -->
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+      <p class="text-red-700">{{ error }}</p>
+    </div>
+    
     <!-- Filters -->
-    <div class="mb-6 bg-white rounded-lg shadow-md p-6">
+    <div v-else class="mb-6 bg-white rounded-lg shadow-md p-6">
       <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div>
           <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
           <input 
+            v-model="filters.search"
             type="text" 
             id="search" 
             placeholder="Order ID, customer..."
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            @input="applyFilters"
           >
         </div>
         <div>
           <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select 
+            v-model="filters.status"
             id="status" 
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            @change="applyFilters"
           >
             <option value="">All Statuses</option>
             <option value="pending">Pending</option>
@@ -41,21 +55,25 @@
         <div>
           <label for="date-from" class="block text-sm font-medium text-gray-700 mb-1">Date From</label>
           <input 
+            v-model="filters.dateFrom"
             type="date" 
             id="date-from" 
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            @change="applyFilters"
           >
         </div>
         <div>
           <label for="date-to" class="block text-sm font-medium text-gray-700 mb-1">Date To</label>
           <input 
+            v-model="filters.dateTo"
             type="date" 
             id="date-to" 
             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            @change="applyFilters"
           >
         </div>
         <div class="flex items-end">
-          <button class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200">
+          <button @click="resetFilters" class="w-full bg-gray-100 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-200">
             Reset Filters
           </button>
         </div>
@@ -63,7 +81,7 @@
     </div>
     
     <!-- Orders Table -->
-    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div v-if="!loading && !error" class="bg-white rounded-lg shadow-md overflow-hidden">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
@@ -77,56 +95,38 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr>
+            <tr v-for="order in filteredOrders" :key="order.id">
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">#ORD-001</div>
+                <div class="text-sm font-medium text-gray-900">#{{ order.id }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">John Doe</div>
-                <div class="text-sm text-gray-500">john@example.com</div>
+                <div class="text-sm text-gray-900">{{ order.user?.name || 'N/A' }}</div>
+                <div class="text-sm text-gray-500">{{ order.user?.email || 'N/A' }}</div>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dec 10, 2025</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦12,500</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {{ formatDate(order.created_at) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦{{ formatPrice(order.total) }}</td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <select 
+                  :value="order.status"
                   class="text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  @change="updateOrderStatus('ORD-001', $event.target.value)"
+                  @change="updateOrderStatus(order.id, $event.target.value)"
                 >
                   <option value="pending">Pending</option>
-                  <option value="processing" selected>Processing</option>
+                  <option value="processing">Processing</option>
                   <option value="shipped">Shipped</option>
                   <option value="delivered">Delivered</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button @click="viewOrderDetails('ORD-001')" class="text-indigo-600 hover:text-indigo-900 mr-3">View</button>
+                <button @click="viewOrderDetails(order)" class="text-indigo-600 hover:text-indigo-900 mr-3">View</button>
               </td>
             </tr>
-            <tr>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900">#ORD-002</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">Jane Smith</div>
-                <div class="text-sm text-gray-500">jane@example.com</div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Dec 9, 2025</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦8,750</td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <select 
-                  class="text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  @change="updateOrderStatus('ORD-002', $event.target.value)"
-                >
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
-                  <option value="shipped" selected>Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button @click="viewOrderDetails('ORD-002')" class="text-indigo-600 hover:text-indigo-900 mr-3">View</button>
+            <tr v-if="filteredOrders.length === 0">
+              <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">
+                No orders found
               </td>
             </tr>
           </tbody>
@@ -142,7 +142,7 @@
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
-              Showing <span class="font-medium">1</span> to <span class="font-medium">10</span> of <span class="font-medium">42</span> results
+              Showing <span class="font-medium">{{ filteredOrders.length > 0 ? 1 : 0 }}</span> to <span class="font-medium">{{ filteredOrders.length }}</span> of <span class="font-medium">{{ filteredOrders.length }}</span> results
             </p>
           </div>
           <div>
@@ -185,19 +185,26 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 class="text-md font-medium text-gray-900 mb-2">Customer Information</h4>
-                <p class="text-sm text-gray-600">John Doe</p>
-                <p class="text-sm text-gray-600">123 Main Street</p>
-                <p class="text-sm text-gray-600">Lagos, Nigeria</p>
-                <p class="text-sm text-gray-600">john@example.com</p>
-                <p class="text-sm text-gray-600">+234 801 234 5678</p>
+                <p class="text-sm text-gray-600">{{ selectedOrder.user?.name || 'N/A' }}</p>
+                <p class="text-sm text-gray-600">{{ selectedOrder.shipping_address?.address || 'N/A' }}</p>
+                <p class="text-sm text-gray-600">{{ selectedOrder.shipping_address?.city || 'N/A' }}, {{ selectedOrder.shipping_address?.state || 'N/A' }}</p>
+                <p class="text-sm text-gray-600">{{ selectedOrder.user?.email || 'N/A' }}</p>
+                <p class="text-sm text-gray-600">{{ selectedOrder.user?.phone || 'N/A' }}</p>
               </div>
               <div>
                 <h4 class="text-md font-medium text-gray-900 mb-2">Order Information</h4>
-                <p class="text-sm text-gray-600"><span class="font-medium">Order Date:</span> Dec 10, 2025</p>
+                <p class="text-sm text-gray-600"><span class="font-medium">Order Date:</span> {{ formatDate(selectedOrder.created_at) }}</p>
                 <p class="text-sm text-gray-600"><span class="font-medium">Status:</span> 
-                  <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>
+                  <span 
+                    :class="[
+                      'px-2 inline-flex text-xs leading-5 font-semibold rounded-full',
+                      getOrderStatusClass(selectedOrder.status)
+                    ]"
+                  >
+                    {{ selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1) }}
+                  </span>
                 </p>
-                <p class="text-sm text-gray-600"><span class="font-medium">Payment Method:</span> Credit Card</p>
+                <p class="text-sm text-gray-600"><span class="font-medium">Payment Method:</span> {{ selectedOrder.payment_method || 'N/A' }}</p>
               </div>
             </div>
           </div>
@@ -215,31 +222,29 @@
                   </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                  <tr>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Organic Apples</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">2</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">₦1,200</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">₦2,400</td>
-                  </tr>
-                  <tr>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">Atlantic Salmon</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">1</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">₦3,500</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">₦3,500</td>
+                  <tr v-for="item in selectedOrder.items" :key="item.id">
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{{ item.product?.name || 'N/A' }}</td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{{ item.quantity }}</td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">₦{{ formatPrice(item.price) }}</td>
+                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900">₦{{ formatPrice(item.price * item.quantity) }}</td>
                   </tr>
                 </tbody>
                 <tfoot class="bg-gray-50">
                   <tr>
                     <td colspan="3" class="px-4 py-2 text-sm font-medium text-gray-900 text-right">Subtotal</td>
-                    <td class="px-4 py-2 text-sm text-gray-900">₦5,900</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">₦{{ formatPrice(selectedOrder.subtotal || 0) }}</td>
                   </tr>
                   <tr>
                     <td colspan="3" class="px-4 py-2 text-sm font-medium text-gray-900 text-right">Shipping</td>
-                    <td class="px-4 py-2 text-sm text-gray-900">₦1,500</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">₦{{ formatPrice(selectedOrder.delivery_fee || 0) }}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="3" class="px-4 py-2 text-sm font-medium text-gray-900 text-right">Tax</td>
+                    <td class="px-4 py-2 text-sm text-gray-900">₦{{ formatPrice(selectedOrder.tax || 0) }}</td>
                   </tr>
                   <tr>
                     <td colspan="3" class="px-4 py-2 text-sm font-medium text-gray-900 text-right">Total</td>
-                    <td class="px-4 py-2 text-sm font-medium text-gray-900">₦7,400</td>
+                    <td class="px-4 py-2 text-sm font-medium text-gray-900">₦{{ formatPrice(selectedOrder.total || 0) }}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -261,13 +266,105 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { getAdminOrders, updateOrderStatus } from '../../services/adminService'
 
+const orders = ref([])
+const loading = ref(false)
+const error = ref('')
 const showOrderModal = ref(false)
 const selectedOrder = ref({})
 
-const viewOrderDetails = (orderId) => {
-  selectedOrder.value = { id: orderId }
+// Filters
+const filters = ref({
+  search: '',
+  status: '',
+  dateFrom: '',
+  dateTo: ''
+})
+
+// Computed properties
+const filteredOrders = computed(() => {
+  let result = [...orders.value]
+  
+  // Apply search filter
+  if (filters.value.search) {
+    const query = filters.value.search.toLowerCase()
+    result = result.filter(order => 
+      order.id.toString().includes(query) || 
+      (order.user?.name && order.user.name.toLowerCase().includes(query)) ||
+      (order.user?.email && order.user.email.toLowerCase().includes(query))
+    )
+  }
+  
+  // Apply status filter
+  if (filters.value.status) {
+    result = result.filter(order => order.status === filters.value.status)
+  }
+  
+  // Apply date filters
+  if (filters.value.dateFrom) {
+    const fromDate = new Date(filters.value.dateFrom)
+    result = result.filter(order => new Date(order.created_at) >= fromDate)
+  }
+  
+  if (filters.value.dateTo) {
+    const toDate = new Date(filters.value.dateTo)
+    toDate.setHours(23, 59, 59, 999) // End of day
+    result = result.filter(order => new Date(order.created_at) <= toDate)
+  }
+  
+  return result
+})
+
+// Methods
+const formatPrice = (price) => {
+  return new Intl.NumberFormat('en-NG').format(price)
+}
+
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-NG')
+}
+
+const getOrderStatusClass = (status) => {
+  const statusClasses = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    processing: 'bg-blue-100 text-blue-800',
+    shipped: 'bg-indigo-100 text-indigo-800',
+    delivered: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800'
+  }
+  return statusClasses[status] || 'bg-gray-100 text-gray-800'
+}
+
+const fetchOrders = async () => {
+  loading.value = true
+  error.value = ''
+  
+  try {
+    const data = await getAdminOrders()
+    orders.value = data
+  } catch (err) {
+    console.error('Failed to load orders:', err)
+    error.value = 'Failed to load orders. Please try again later.'
+  } finally {
+    loading.value = false
+  }
+}
+
+const applyFilters = () => {
+  // Filtering is handled by computed property
+}
+
+const resetFilters = () => {
+  filters.value.search = ''
+  filters.value.status = ''
+  filters.value.dateFrom = ''
+  filters.value.dateTo = ''
+}
+
+const viewOrderDetails = (order) => {
+  selectedOrder.value = order
   showOrderModal.value = true
 }
 
@@ -275,8 +372,28 @@ const closeOrderModal = () => {
   showOrderModal.value = false
 }
 
-const updateOrderStatus = (orderId, status) => {
-  // Update order status logic would go here
-  console.log(`Updating order ${orderId} to status ${status}`)
+const updateOrderStatusHandler = async (orderId, status) => {
+  try {
+    const updatedOrder = await updateOrderStatus(orderId, status)
+    
+    // Update the order in the list
+    const orderIndex = orders.value.findIndex(order => order.id === orderId)
+    if (orderIndex !== -1) {
+      orders.value[orderIndex] = updatedOrder
+    }
+    
+    // If we're viewing this order in the modal, update it there too
+    if (selectedOrder.value.id === orderId) {
+      selectedOrder.value = updatedOrder
+    }
+  } catch (error) {
+    console.error('Failed to update order status:', error)
+    alert('Failed to update order status: ' + (error.response?.data?.message || error.message))
+  }
 }
+
+// Lifecycle
+onMounted(() => {
+  fetchOrders()
+})
 </script>

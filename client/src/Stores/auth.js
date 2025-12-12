@@ -26,6 +26,7 @@ export const useAuth = defineStore('auth', {
         throw error
       }
     },
+    
     async logout() {
       try {
         await api.post('/logout')
@@ -43,11 +44,21 @@ export const useAuth = defineStore('auth', {
     },
     
     // Initialize auth state from localStorage
-    init() {
+    async init() {
       const token = localStorage.getItem('authToken')
       if (token) {
         this.token = token
-        // You might want to fetch user data here if needed
+        // Fetch user data to ensure we have current information
+        try {
+          const response = await api.get('/user')
+          this.user = response.data
+        } catch (error) {
+          // If we can't fetch user data, the token might be invalid
+          console.error('Failed to fetch user data:', error)
+          this.user = null
+          this.token = null
+          localStorage.removeItem('authToken')
+        }
       }
     }
   }
