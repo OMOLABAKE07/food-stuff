@@ -97,15 +97,16 @@ const handleLogin = async () => {
   loading.value = true
   try {
     // Actually authenticate the user
-    await authStore.login(email.value, password.value)
+    const response = await authStore.login(email.value, password.value)
     
     // Check if user is admin
-    if (authStore.user && authStore.user.role === 'admin') {
+    if (response.user && response.user.role === 'admin') {
       // Redirect to admin dashboard
       router.push('/admin')
     } else {
-      // Not an admin, show error
+      // Not an admin, show error and logout
       toastr.error('Access denied. Administrator privileges required.')
+      await authStore.logout()
     }
   } catch (error) {
     console.error('Login failed:', error)
@@ -114,4 +115,5 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
+
 </script>

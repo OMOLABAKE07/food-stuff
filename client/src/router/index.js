@@ -17,7 +17,6 @@ import ReturnsRefunds from '../pages/help/ReturnsRefunds.vue'
 import LiveChat from '../pages/LiveChat.vue'
 import MainLayout from '../components/ui/MainLayout.vue'
 import AdminLayout from '../components/ui/AdminLayout.vue'
-import AdminLogin from '../pages/admin/AdminLogin.vue'
 import AdminDashboard from '../pages/admin/AdminDashboard.vue'
 import AdminProducts from '../pages/admin/AdminProducts.vue'
 import AdminOrders from '../pages/admin/AdminOrders.vue'
@@ -46,12 +45,6 @@ const routes = [
       { path: '/live-chat', name: 'LiveChat', component: LiveChat }
     ]
   },
-  // Admin routes
-  {
-    path: '/admin/login',
-    name: 'AdminLogin',
-    component: AdminLogin
-  },
   {
     path: '/admin',
     component: AdminLayout,
@@ -76,10 +69,22 @@ router.beforeEach((to, from, next) => {
   // Define admin routes
   const adminRoutes = ['/admin', '/admin/products', '/admin/orders']
   
+  // Define customer routes that should not be accessible to admins
+  const customerRoutes = ['/', '/products', '/products/:id', '/cart', '/checkout', '/orders', '/help', '/live-chat']
+  
+  const authStore = useAuth()
+  
+  // Check if user is authenticated and is admin
+  if (authStore.isAuthenticated && authStore.user.role === 'admin') {
+    // If admin is trying to access customer routes, redirect to admin dashboard
+    if (customerRoutes.includes(to.name) || to.path === '/') {
+      next({ path: '/admin' })
+      return
+    }
+  }
+  
   // Check if the route requires authentication
   if (protectedRoutes.includes(to.path)) {
-    const authStore = useAuth()
-    
     // Check if user is authenticated
     if (!authStore.isAuthenticated) {
       // Redirect to login page with return url
@@ -93,8 +98,6 @@ router.beforeEach((to, from, next) => {
   
   // Check if the route requires admin authentication
   if (adminRoutes.some(route => to.path.startsWith(route))) {
-    const authStore = useAuth()
-    
     // Check if user is authenticated and is admin
     if (!authStore.isAuthenticated || authStore.user.role !== 'admin') {
       // Redirect to admin login page
