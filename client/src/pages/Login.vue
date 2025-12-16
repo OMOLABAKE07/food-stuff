@@ -79,8 +79,10 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
+    // Get CSRF cookie first
     await api.get('/sanctum/csrf-cookie')
-
+    
+    // Attempt login through auth store
     await authStore.login(form.value.email, form.value.password)
 
     const guestCart = JSON.parse(localStorage.getItem('cart') || '[]')
@@ -102,8 +104,25 @@ const handleLogin = async () => {
     router.push(redirectPath)
 
   } catch (err) {
-    console.error(err)
-    error.value = err.response?.data?.message || 'Login failed. Please try again.'
+    console.error('Login error details:', err)
+    // Enhanced error handling to show specific error messages
+    if (err.response?.status === 422) {
+      if (err.response.data?.message) {
+        error.value = err.response.data.message
+      } else if (err.response.data?.errors) {
+        // Handle Laravel validation errors
+        const firstErrorField = Object.keys(err.response.data.errors)[0]
+        error.value = err.response.data.errors[firstErrorField][0]
+      } else {
+        error.value = 'Invalid credentials. Please check your email and password.'
+      }
+    } else if (err.response?.status === 419) {
+      error.value = 'Session expired. Please try again.'
+    } else if (!err.response) {
+      error.value = 'Network error. Please check your connection.'
+    } else {
+      error.value = err.response?.data?.message || 'Login failed. Please try again.'
+    }
   } finally {
     loading.value = false
   }

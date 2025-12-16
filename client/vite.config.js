@@ -13,10 +13,10 @@ export default defineConfig({
   },
   server: {
     host: "localhost",
-    port: 8000,
+    port: 3000,
     proxy: {
-      "/api": "http://localhost:8004",
-      "/sanctum": "http://localhost:8004",
+      "/api": "http://localhost:8000",
+      "/sanctum": "http://localhost:8000",
     },
   },
 });

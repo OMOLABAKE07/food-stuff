@@ -14,6 +14,10 @@ export const useAuth = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
+        // First, ensure we have a CSRF cookie
+        await api.get('/sanctum/csrf-cookie')
+        
+        // Then attempt to log in
         const res = await api.post('/login', { email, password })
         this.user = res.data.user
         this.token = res.data.token
@@ -23,6 +27,8 @@ export const useAuth = defineStore('auth', {
         }
         return res.data
       } catch (error) {
+        // Log the error for debugging purposes
+        console.error('Login error:', error.response?.data || error.message)
         throw error
       }
     },
