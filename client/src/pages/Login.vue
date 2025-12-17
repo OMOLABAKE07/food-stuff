@@ -79,8 +79,6 @@ const handleLogin = async () => {
   error.value = ''
 
   try {
-    await api.get('/sanctum/csrf-cookie')
-
     const user = await authStore.login(form.value.email, form.value.password)
 
     const guestCart = JSON.parse(localStorage.getItem('cart') || '[]')

@@ -20,7 +20,6 @@ import AdminLayout from '../components/ui/AdminLayout.vue'
 import AdminDashboard from '../pages/admin/AdminDashboard.vue'
 import AdminProducts from '../pages/admin/AdminProducts.vue'
 import AdminOrders from '../pages/admin/AdminOrders.vue'
-import AdminLogin from '../pages/admin/AdminLogin.vue'
 import { useAuth } from '../Stores/auth'
 
 const routes = [
@@ -47,11 +46,6 @@ const routes = [
     ]
   },
   {
-    path: '/admin/login',
-    name: 'AdminLogin',
-    component: AdminLogin
-  },
-  {
     path: '/admin',
     component: AdminLayout,
     children: [
@@ -72,22 +66,13 @@ router.beforeEach((to, from, next) => {
   // Define routes that require authentication
   const protectedRoutes = ['/checkout', '/orders']
   
-  // Define admin routes
-  const adminRoutes = ['/admin', '/admin/products', '/admin/orders']
+  // Define admin routes (excluding the base '/admin' path which is handled separately)
+  const adminRoutes = ['/admin/products', '/admin/orders']
   
   // Define customer routes that should not be accessible to admins
   const customerRoutes = ['/', '/products', '/products/:id', '/cart', '/checkout', '/orders', '/help', '/live-chat']
   
   const authStore = useAuth()
-  
-  // Check if user is authenticated and is admin
-  if (authStore.isAuthenticated && authStore.user.role === 'admin') {
-    // If admin is trying to access customer routes, redirect to admin dashboard
-    if (customerRoutes.includes(to.name) || to.path === '/' || to.path === '') {
-      next({ name: 'AdminDashboard' })
-      return
-    }
-  }
   
   // Check if the route requires authentication
   if (protectedRoutes.includes(to.path)) {
@@ -101,19 +86,6 @@ router.beforeEach((to, from, next) => {
       return
     }
   }
-  
-  // Check if the route requires admin authentication
-  if (adminRoutes.some(route => to.path.startsWith(route)) && to.path !== '/admin/login') {
-    // Check if user is authenticated and is admin
-    if (!authStore.isAuthenticated || authStore.user.role !== 'admin') {
-      // Redirect to admin login page
-      next({ 
-        name: 'AdminLogin'
-      })
-      return
-    }
-  }
-  
   // Allow navigation to proceed
   next()
 })

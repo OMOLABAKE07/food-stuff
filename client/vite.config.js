@@ -12,11 +12,17 @@ export default defineConfig({
     },
   },
   server: {
-    host: "localhost",
-    port: 3000,
     proxy: {
-      "/api": "http://localhost:8000",
-      "/sanctum": "http://localhost:8000",
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/sanctum": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 });
