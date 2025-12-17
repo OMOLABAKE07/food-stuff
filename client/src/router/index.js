@@ -20,6 +20,7 @@ import AdminLayout from '../components/ui/AdminLayout.vue'
 import AdminDashboard from '../pages/admin/AdminDashboard.vue'
 import AdminProducts from '../pages/admin/AdminProducts.vue'
 import AdminOrders from '../pages/admin/AdminOrders.vue'
+import AdminLogin from '../pages/admin/AdminLogin.vue'
 import { useAuth } from '../Stores/auth'
 
 const routes = [
@@ -44,6 +45,11 @@ const routes = [
       { path: '/help/returns-refunds', name: 'ReturnsRefunds', component: ReturnsRefunds },
       { path: '/live-chat', name: 'LiveChat', component: LiveChat }
     ]
+  },
+  {
+    path: '/admin/login',
+    name: 'AdminLogin',
+    component: AdminLogin
   },
   {
     path: '/admin',
@@ -77,8 +83,8 @@ router.beforeEach((to, from, next) => {
   // Check if user is authenticated and is admin
   if (authStore.isAuthenticated && authStore.user.role === 'admin') {
     // If admin is trying to access customer routes, redirect to admin dashboard
-    if (customerRoutes.includes(to.name) || to.path === '/') {
-      next({ path: '/admin' })
+    if (customerRoutes.includes(to.name) || to.path === '/' || to.path === '') {
+      next({ name: 'AdminDashboard' })
       return
     }
   }
@@ -97,12 +103,12 @@ router.beforeEach((to, from, next) => {
   }
   
   // Check if the route requires admin authentication
-  if (adminRoutes.some(route => to.path.startsWith(route))) {
+  if (adminRoutes.some(route => to.path.startsWith(route)) && to.path !== '/admin/login') {
     // Check if user is authenticated and is admin
     if (!authStore.isAuthenticated || authStore.user.role !== 'admin') {
       // Redirect to admin login page
       next({ 
-        path: '/admin/login'
+        name: 'AdminLogin'
       })
       return
     }

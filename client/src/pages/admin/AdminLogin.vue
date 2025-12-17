@@ -102,7 +102,7 @@ const handleLogin = async () => {
     // Check if user is admin
     if (response.user && response.user.role === 'admin') {
       // Redirect to admin dashboard
-      router.push('/admin')
+      router.push({ name: 'AdminDashboard' })
     } else {
       // Not an admin, show error and logout
       toastr.error('Access denied. Administrator privileges required.')
