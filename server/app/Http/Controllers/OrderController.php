@@ -44,7 +44,7 @@ class OrderController extends Controller
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|integer|min:1',
             'shipping_address' => 'required|array',
-            'total_amount' => 'required|integer|min:1'
+            'total_amount' => 'required|numeric|min:1'
         ]);
 
         // Calculate order totals

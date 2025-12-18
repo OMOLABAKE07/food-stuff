@@ -15,6 +15,7 @@ use App\Http\Controllers\HelpCategoryController;
 use App\Http\Controllers\HelpTopicController;
 use App\Http\Controllers\HelpArticleController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\UserController;
 
 // Add CSRF cookie route for SPA authentication
 Route::get('/sanctum/csrf-cookie', function (Request $request) {
@@ -64,6 +65,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('/products', ProductController::class);
         Route::get('/orders', [AdminOrderController::class, 'index']);
         Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
+        Route::apiResource('/users', UserController::class);
         
         // Admin help routes
         Route::apiResource('/help/categories', HelpCategoryController::class);

@@ -11,6 +11,10 @@ class Order extends Model
     ];
 
     protected $casts = [
+        'subtotal' => 'integer',
+        'tax' => 'integer',
+        'shipping' => 'integer',
+        'total' => 'integer',
         'delivery_address' => 'array'
     ];
 

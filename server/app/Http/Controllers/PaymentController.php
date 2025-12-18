@@ -33,14 +33,14 @@ class PaymentController extends Controller
         $payment = Payment::create([
             'order_id' => $order->id,
             'reference' => $reference,
-            'amount' => $order->total,
+            'amount' => intval($order->total),
             'status' => 'pending'
         ]);
 
         // Prepare data for Paystack
         // Convert Naira to Kobo (1 Naira = 100 Kobo)
         $data = [
-            "amount" => $order->total * 100,  // Convert to kobo for Paystack
+            "amount" => intval($order->total * 100),  // Convert to kobo for Paystack and ensure it's an integer
             "reference" => $reference,
             "email" => Auth::user()->email,
             "currency" => "NGN",

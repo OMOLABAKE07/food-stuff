@@ -11,6 +11,7 @@ class Payment extends Model
     ];
 
     protected $casts = [
+        'amount' => 'integer',
         'metadata' => 'array'
     ];
 
