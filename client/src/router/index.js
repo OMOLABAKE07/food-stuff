@@ -20,6 +20,11 @@ import AdminLayout from '../components/ui/AdminLayout.vue'
 import AdminDashboard from '../pages/admin/AdminDashboard.vue'
 import AdminProducts from '../pages/admin/AdminProducts.vue'
 import AdminOrders from '../pages/admin/AdminOrders.vue'
+import AdminCustomers from '../pages/admin/AdminCustomers.vue'
+import AdminAnalytics from '../pages/admin/AdminAnalytics.vue'
+import AdminCategories from '../pages/admin/AdminCategories.vue'
+import AdminProfile from '../pages/admin/AdminProfile.vue'
+import AdminSettings from '../pages/admin/AdminSettings.vue'
 import { useAuth } from '../Stores/auth'
 
 const routes = [
@@ -51,7 +56,12 @@ const routes = [
     children: [
       { path: '', name: 'AdminDashboard', component: AdminDashboard },
       { path: 'products', name: 'AdminProducts', component: AdminProducts },
-      { path: 'orders', name: 'AdminOrders', component: AdminOrders }
+      { path: 'orders', name: 'AdminOrders', component: AdminOrders },
+      { path: 'customers', name: 'AdminCustomers', component: AdminCustomers },
+      { path: 'analytics', name: 'AdminAnalytics', component: AdminAnalytics },
+      { path: 'categories', name: 'AdminCategories', component: AdminCategories },
+      { path: 'profile', name: 'AdminProfile', component: AdminProfile },
+      { path: 'settings', name: 'AdminSettings', component: AdminSettings }
     ]
   }
 ]
@@ -67,7 +77,7 @@ router.beforeEach((to, from, next) => {
   const protectedRoutes = ['/checkout', '/orders']
   
   // Define admin routes (excluding the base '/admin' path which is handled separately)
-  const adminRoutes = ['/admin/products', '/admin/orders']
+  const adminRoutes = ['/admin/products', '/admin/orders', '/admin/customers', '/admin/analytics', '/admin/categories', '/admin/profile', '/admin/settings']
   
   // Define customer routes that should not be accessible to admins
   const customerRoutes = ['/', '/products', '/products/:id', '/cart', '/checkout', '/orders', '/help', '/live-chat']
