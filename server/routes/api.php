@@ -63,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::prefix('admin')->middleware('admin')->group(function() {
         Route::apiResource('/products', ProductController::class);
+        Route::apiResource('/categories', CategoryController::class);
         Route::get('/orders', [AdminOrderController::class, 'index']);
         Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
         Route::apiResource('/users', UserController::class);

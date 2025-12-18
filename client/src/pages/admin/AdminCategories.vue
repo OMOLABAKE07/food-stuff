@@ -56,7 +56,10 @@
     <!-- Add/Edit Category Modal -->
     <div v-if="showCategoryModal">
       <!-- Overlay -->
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 z-40"></div>
+      <div
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 z-40"
+        @click="closeCategoryModal"
+      ></div>
 
       <!-- Modal -->
       <div class="fixed inset-0 z-50 overflow-y-auto">
@@ -71,7 +74,7 @@
                 {{ editingCategory ? 'Edit Category' : 'Add Category' }}
               </h3>
 
-              <form class="mt-4 space-y-4">
+              <form @submit.prevent="saveCategory" class="mt-4 space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700">
                     Category Name
@@ -83,16 +86,19 @@
                     class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
+
+                <div class="flex justify-end">
+                  <button
+                    type="submit"
+                    class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    Save
+                  </button>
+                </div>
               </form>
             </div>
 
             <div class="px-4 py-3 bg-gray-50 sm:px-6 sm:flex sm:flex-row-reverse">
-              <button
-                @click="saveCategory"
-                class="inline-flex justify-center w-full px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm"
-              >
-                Save
-              </button>
               <button
                 @click="closeCategoryModal"
                 class="inline-flex justify-center w-full px-4 py-2 mt-3 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
@@ -128,15 +134,15 @@ export default {
   methods: {
     async fetchCategories() {
       try {
-        const response = await api.get('/admin/help/categories')
+        const response = await api.get('/admin/categories')
         this.categories = response.data
       } catch (error) {
         console.error('Error fetching categories:', error)
         try {
           const response = await api.get('/categories')
           this.categories = response.data
-        } catch (fallbackError) {
-          console.error('Error fetching product categories:', fallbackError)
+        } catch {
+          this.categories = []
         }
       }
     },
@@ -162,16 +168,16 @@ export default {
     },
     async saveCategory() {
       if (this.editingCategory) {
-        await api.put(`/admin/help/categories/${this.editingCategory.id}`, this.categoryForm)
+        await api.put(`/admin/categories/${this.editingCategory.id}`, this.categoryForm)
       } else {
-        await api.post('/admin/help/categories', this.categoryForm)
+        await api.post('/admin/categories', this.categoryForm)
       }
       this.closeCategoryModal()
       await this.fetchCategories()
     },
     async deleteCategory(category) {
       if (confirm(`Are you sure you want to delete the category "${category.category_name}"?`)) {
-        await api.delete(`/admin/help/categories/${category.id}`)
+        await api.delete(`/admin/categories/${category.id}`)
         await this.fetchCategories()
       }
     }
