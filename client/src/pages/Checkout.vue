@@ -95,12 +95,14 @@
         <div v-if="orderCreated" class="mt-6 pt-6 border-t border-gray-200">
           <h3 class="text-lg font-medium text-gray-900 mb-4">Payment</h3>
           
-          <PaystackButton 
-            v-if="orderId"
-            :order-id="orderId"
-            @payment-success="handlePaymentSuccess"
-            @payment-error="handlePaymentError"
-          />
+          <div v-if="!paymentSuccess">
+            <PaystackButton 
+              v-if="orderId"
+              :order-id="orderId"
+              @payment-success="handlePaymentSuccess"
+              @payment-error="handlePaymentError"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -113,8 +115,8 @@
       <p class="text-green-700">Order placed successfully! Your order ID is {{ orderId }}</p>
     </div>
     
-    <div v-if="paymentSuccess" class="mt-6 bg-green-50 border green-200 rounded-md p-4">
-      <p class="text-green-700">Payment successful! Your order is now being processed.</p>
+    <div v-if="paymentSuccess" class="mt-6 bg-green-50 border border-green-200 rounded-md p-4">
+      <p class="text-green-700">Payment successful! Your order is now being processed. Redirecting to orders page...</p>
     </div>
   </div>
 </template>
@@ -229,13 +231,14 @@ const handleSubmit = async () => {
   }
 }
 
-const handlePaymentSuccess = () => {
+const handlePaymentSuccess = (data) => {
   paymentSuccess.value = true
   cartStore.items = []
   
+  // Show success message for 3 seconds before redirecting
   setTimeout(() => {
     router.push('/orders')
-  }, 2000)
+  }, 3000)
 }
 
 const handlePaymentError = (error) => {

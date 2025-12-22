@@ -15,6 +15,7 @@ import TrackOrder from '../pages/help/TrackOrder.vue'
 import CancelOrder from '../pages/help/CancelOrder.vue'
 import ReturnsRefunds from '../pages/help/ReturnsRefunds.vue'
 import LiveChat from '../pages/LiveChat.vue'
+import TestPaystack from '../pages/TestPaystack.vue'
 import MainLayout from '../components/ui/MainLayout.vue'
 import AdminLayout from '../components/ui/AdminLayout.vue'
 import AdminDashboard from '../pages/admin/AdminDashboard.vue'
@@ -47,7 +48,8 @@ const routes = [
       { path: '/help/track-order', name: 'TrackOrder', component: TrackOrder },
       { path: '/help/cancel-order', name: 'CancelOrder', component: CancelOrder },
       { path: '/help/returns-refunds', name: 'ReturnsRefunds', component: ReturnsRefunds },
-      { path: '/live-chat', name: 'LiveChat', component: LiveChat }
+      { path: '/live-chat', name: 'LiveChat', component: LiveChat },
+            { path: '/test-paystack', name: 'TestPaystack', component: TestPaystack }
     ]
   },
   {
